@@ -25,3 +25,6 @@ dist-ssr
 
 generate-icons.js
 firebase.ts
+.firebase/
+.firebaserc
+firebase.json
