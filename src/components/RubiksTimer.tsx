@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Trash2, Plus, TrendingUp, Award, TrendingDown, Edit2, Check, X } from 'lucide-react';
+import { Trash2, Plus, TrendingUp, Award, TrendingDown, Edit2, Check, X, Languages } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 type TimerState = 'idle' | 'ready' | 'running' | 'stopped';
 type ViewType = 'timer' | 'stats';
@@ -33,6 +34,8 @@ declare global {
 }
 
 const RubiksTimer: React.FC = () => {
+  const { language, setLanguage, t } = useLanguage();
+
   const [timerState, setTimerState] = useState<TimerState>('idle');
   const [time, setTime] = useState<number>(0);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -45,6 +48,53 @@ const RubiksTimer: React.FC = () => {
 
   const intervalRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+
+  // Request wake lock to prevent screen from turning off
+  const requestWakeLock = async (): Promise<void> => {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+        console.log('Wake Lock attivato - lo schermo non si spegnerà');
+      }
+    } catch (err) {
+      console.error('Errore wake lock:', err);
+    }
+  };
+
+  // Release wake lock
+  const releaseWakeLock = async (): Promise<void> => {
+    try {
+      if (wakeLockRef.current) {
+        await wakeLockRef.current.release();
+        wakeLockRef.current = null;
+        console.log('Wake Lock rilasciato');
+      }
+    } catch (err) {
+      console.error('Errore rilascio wake lock:', err);
+    }
+  };
+
+  // Handle visibility change to re-request wake lock
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && timerState === 'running') {
+        await requestWakeLock();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [timerState]);
+
+  // Cleanup wake lock on unmount
+  useEffect(() => {
+    return () => {
+      releaseWakeLock();
+    };
+  }, []);
 
   // Load sessions from storage
   useEffect(() => {
@@ -97,7 +147,7 @@ const RubiksTimer: React.FC = () => {
   const generateScramble = (): string => {
     const moves: string[] = ['R', 'L', 'U', 'D', 'F', 'B'];
     const modifiers: string[] = ['', "'", '2'];
-    const scrambleLength = 20;
+    const scrambleLength = 30;
     const scrambleArray: string[] = [];
     let lastMove = '';
     let lastAxis = '';
@@ -128,7 +178,7 @@ const RubiksTimer: React.FC = () => {
     const sessionNumber = sessions.length + 1;
     const newSession: Session = {
       id: Date.now(),
-      name: `Sessione ${sessionNumber}`,
+      name: `${t('session')} ${sessionNumber}`,
       date: new Date().toISOString(),
       times: []
     };
@@ -176,6 +226,8 @@ const RubiksTimer: React.FC = () => {
           setTime(Date.now() - startTimeRef.current);
         }
       }, 10);
+      // Request wake lock to keep screen on
+      requestWakeLock();
     } else if (timerState === 'running') {
       // Stop timer
       if (intervalRef.current !== null) {
@@ -183,6 +235,8 @@ const RubiksTimer: React.FC = () => {
       }
       setTimerState('stopped');
       saveTime(time);
+      // Release wake lock when timer stops
+      releaseWakeLock();
     } else if (timerState === 'stopped') {
       // Reset
       setTimerState('idle');
@@ -255,10 +309,10 @@ const RubiksTimer: React.FC = () => {
 
   const getStateText = (): string => {
     switch (timerState) {
-      case 'idle': return 'Tieni premuto per prepararti';
-      case 'ready': return 'Rilascia per partire!';
-      case 'running': return 'Risolvi il cubo...';
-      case 'stopped': return 'Click per resettare';
+      case 'idle': return t('holdToReady');
+      case 'ready': return t('releaseToStart');
+      case 'running': return t('solving');
+      case 'stopped': return t('clickToReset');
       default: return '';
     }
   };
@@ -268,15 +322,15 @@ const RubiksTimer: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="border-4 border-black bg-yellow-300 p-6 mb-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h1 className="text-4xl md:text-5xl font-black uppercase mb-2">Rubik's Timer</h1>
-          <div className="flex gap-2">
+          <h1 className="text-4xl md:text-5xl font-black uppercase mb-2">{t('appTitle')}</h1>
+          <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setView('timer')}
               className={`px-4 py-2 border-4 border-black font-bold uppercase ${
                 view === 'timer' ? 'bg-black text-white' : 'bg-white'
               }`}
             >
-              Timer
+              {t('timer')}
             </button>
             <button
               onClick={() => setView('stats')}
@@ -284,13 +338,20 @@ const RubiksTimer: React.FC = () => {
                 view === 'stats' ? 'bg-black text-white' : 'bg-white'
               }`}
             >
-              Stats
+              {t('stats')}
+            </button>
+            <button
+              onClick={() => setLanguage(language === 'it' ? 'en' : 'it')}
+              className="px-4 py-2 border-4 border-black font-bold uppercase bg-purple-300 hover:bg-purple-400 flex items-center gap-2"
+              title={language === 'it' ? 'Switch to English' : 'Passa all\'italiano'}
+            >
+              <Languages size={20} /> {language.toUpperCase()}
             </button>
             <button
               onClick={createNewSession}
               className="ml-auto px-4 py-2 border-4 border-black font-bold uppercase bg-green-300 hover:bg-green-400 flex items-center gap-2"
             >
-              <Plus size={20} /> Nuova Sessione
+              <Plus size={20} /> {t('newSession')}
             </button>
           </div>
         </div>
@@ -299,7 +360,7 @@ const RubiksTimer: React.FC = () => {
           <>
             {/* Scramble Display */}
             <div className="border-4 border-black bg-cyan-300 p-6 mb-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <div className="text-sm font-bold uppercase mb-2">Scramble</div>
+              <div className="text-sm font-bold uppercase mb-2">{t('scramble')}</div>
               <div className="text-2xl md:text-3xl font-black font-mono wrap-break-word">
                 {scramble}
               </div>
@@ -329,21 +390,21 @@ const RubiksTimer: React.FC = () => {
                 <div className="border-4 border-black bg-green-300 p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                   <div className="flex items-center gap-2 mb-2">
                     <Award size={24} />
-                    <span className="font-bold uppercase text-sm">Best</span>
+                    <span className="font-bold uppercase text-sm">{t('best')}</span>
                   </div>
                   <div className="text-3xl font-black font-mono">{formatTime(currentStats.best)}</div>
                 </div>
                 <div className="border-4 border-black bg-blue-300 p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp size={24} />
-                    <span className="font-bold uppercase text-sm">Media</span>
+                    <span className="font-bold uppercase text-sm">{t('average')}</span>
                   </div>
                   <div className="text-3xl font-black font-mono">{formatTime(currentStats.average)}</div>
                 </div>
                 <div className="border-4 border-black bg-red-300 p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingDown size={24} />
-                    <span className="font-bold uppercase text-sm">Worst</span>
+                    <span className="font-bold uppercase text-sm">{t('worst')}</span>
                   </div>
                   <div className="text-3xl font-black font-mono">{formatTime(currentStats.worst)}</div>
                 </div>
@@ -353,7 +414,7 @@ const RubiksTimer: React.FC = () => {
             {/* Recent Times */}
             {currentSession && currentSession.times.length > 0 && (
               <div className="border-4 border-black bg-purple-300 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                <h2 className="text-2xl font-black uppercase mb-4">Ultimi Tempi</h2>
+                <h2 className="text-2xl font-black uppercase mb-4">{t('recentTimes')}</h2>
                 <div className="space-y-2">
                   {[...currentSession.times].reverse().slice(0, 10).map((time, idx) => {
                     const originalIdx = currentSession.times.length - 1 - idx;
@@ -382,22 +443,22 @@ const RubiksTimer: React.FC = () => {
             {/* Global Stats */}
             {globalStats && (
               <div className="border-4 border-black bg-orange-300 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                <h2 className="text-3xl font-black uppercase mb-4">Statistiche Globali</h2>
+                <h2 className="text-3xl font-black uppercase mb-4">{t('globalStats')}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <div className="text-sm font-bold uppercase mb-1">Totale</div>
+                    <div className="text-sm font-bold uppercase mb-1">{t('total')}</div>
                     <div className="text-2xl font-black">{globalStats.count}</div>
                   </div>
                   <div>
-                    <div className="text-sm font-bold uppercase mb-1">Best</div>
+                    <div className="text-sm font-bold uppercase mb-1">{t('best')}</div>
                     <div className="text-2xl font-black font-mono">{formatTime(globalStats.best)}</div>
                   </div>
                   <div>
-                    <div className="text-sm font-bold uppercase mb-1">Media</div>
+                    <div className="text-sm font-bold uppercase mb-1">{t('average')}</div>
                     <div className="text-2xl font-black font-mono">{formatTime(globalStats.average)}</div>
                   </div>
                   <div>
-                    <div className="text-sm font-bold uppercase mb-1">Worst</div>
+                    <div className="text-sm font-bold uppercase mb-1">{t('worst')}</div>
                     <div className="text-2xl font-black font-mono">{formatTime(globalStats.worst)}</div>
                   </div>
                 </div>
@@ -406,7 +467,7 @@ const RubiksTimer: React.FC = () => {
 
             {/* Sessions List */}
             <div className="space-y-4">
-              <h2 className="text-3xl font-black uppercase">Tutte le Sessioni</h2>
+              <h2 className="text-3xl font-black uppercase">{t('allSessions')}</h2>
               {sessions.map(session => {
                 const stats = getStats(session.times);
                 const date = new Date(session.date);
@@ -465,11 +526,11 @@ const RubiksTimer: React.FC = () => {
                           </div>
                         )}
                         <div className="text-sm font-bold mt-1">
-                          {date.toLocaleDateString('it-IT')} {date.toLocaleTimeString('it-IT')}
+                          {date.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US')} {date.toLocaleTimeString(language === 'it' ? 'it-IT' : 'en-US')}
                         </div>
                         {session.id === currentSessionId && (
                           <span className="text-sm font-bold uppercase bg-black text-white px-2 py-1 inline-block mt-1">
-                            Sessione Corrente
+                            {t('currentSession')}
                           </span>
                         )}
                       </div>
@@ -483,19 +544,19 @@ const RubiksTimer: React.FC = () => {
                     {stats && (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                         <div>
-                          <div className="font-bold uppercase">Solve</div>
+                          <div className="font-bold uppercase">{t('solves')}</div>
                           <div className="font-black text-lg">{stats.count}</div>
                         </div>
                         <div>
-                          <div className="font-bold uppercase">Best</div>
+                          <div className="font-bold uppercase">{t('best')}</div>
                           <div className="font-black text-lg font-mono">{formatTime(stats.best)}</div>
                         </div>
                         <div>
-                          <div className="font-bold uppercase">Media</div>
+                          <div className="font-bold uppercase">{t('average')}</div>
                           <div className="font-black text-lg font-mono">{formatTime(stats.average)}</div>
                         </div>
                         <div>
-                          <div className="font-bold uppercase">Worst</div>
+                          <div className="font-bold uppercase">{t('worst')}</div>
                           <div className="font-black text-lg font-mono">{formatTime(stats.worst)}</div>
                         </div>
                       </div>
