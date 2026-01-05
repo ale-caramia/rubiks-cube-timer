@@ -13,9 +13,14 @@ export const translations = {
     // Timer states
     holdToReady: 'Tieni premuto per prepararti',
     releaseToStart: 'Rilascia per partire!',
+    inspection: 'Ispezione cubo',
+    countdown: 'Partenza imminente',
     solving: 'Risolvi il cubo...',
     clickToReset: 'Click per resettare',
     tapToStop: 'Tocca per fermare',
+    tapToCancel: 'Tocca per annullare',
+    inspectionSeconds: 'Secondi di ispezione',
+    countdownSeconds: 'Secondi al via',
 
     // Scramble
     scramble: 'Scramble',
@@ -67,9 +72,14 @@ export const translations = {
     // Timer states
     holdToReady: 'Hold to get ready',
     releaseToStart: 'Release to start!',
+    inspection: 'Cube inspection',
+    countdown: 'Starting soon',
     solving: 'Solve the cube...',
     clickToReset: 'Click to reset',
     tapToStop: 'Tap to stop',
+    tapToCancel: 'Tap to cancel',
+    inspectionSeconds: 'Inspection seconds',
+    countdownSeconds: 'Seconds to start',
 
     // Scramble
     scramble: 'Scramble',

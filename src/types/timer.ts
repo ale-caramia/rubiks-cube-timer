@@ -1,4 +1,4 @@
-export type TimerState = 'idle' | 'ready' | 'running' | 'stopped';
+export type TimerState = 'idle' | 'ready' | 'inspection' | 'countdown' | 'running' | 'stopped';
 
 export interface TimeEntry {
   time: number;

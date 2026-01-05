@@ -10,16 +10,26 @@ import { formatTime } from '../utils/time';
 import { calculateAo5, calculateAo12, calculateBestAo5, calculateBestAo12, getStats } from '../utils/stats';
 import type { TimerState } from '../types/timer';
 
+const INSPECTION_DURATION_MS = 15000;
+const PRE_START_COUNTDOWN_SECONDS = 5;
+
 const TimerPage: React.FC = () => {
   const { t } = useLanguage();
   const { currentSession, addTime, deleteTime } = useSessions();
   const [timerState, setTimerState] = useState<TimerState>('idle');
   const [time, setTime] = useState<number>(0);
-  const [holdTimeout, setHoldTimeout] = useState<number | null>(null);
+  const holdTimeoutRef = useRef<number | null>(null);
+  const [inspectionRemainingMs, setInspectionRemainingMs] = useState<number>(INSPECTION_DURATION_MS);
+  const [countdownSeconds, setCountdownSeconds] = useState<number>(PRE_START_COUNTDOWN_SECONDS);
   const [scramble, setScramble] = useState<string>('');
   const intervalRef = useRef<number | null>(null);
+  const inspectionRafRef = useRef<number | null>(null);
+  const inspectionStartRef = useRef<number | null>(null);
+  const countdownIntervalRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
-  const { requestWakeLock, releaseWakeLock } = useWakeLock(timerState === 'running');
+  const { requestWakeLock, releaseWakeLock } = useWakeLock(
+    timerState === 'running' || timerState === 'inspection' || timerState === 'countdown'
+  );
   const confirmDialog = useConfirmDialog();
 
   useEffect(() => {
@@ -28,35 +38,128 @@ const TimerPage: React.FC = () => {
     }
   }, [scramble]);
 
+  useEffect(() => {
+    return () => {
+      if (holdTimeoutRef.current !== null) {
+        clearTimeout(holdTimeoutRef.current);
+      }
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+      }
+      if (inspectionRafRef.current !== null) {
+        cancelAnimationFrame(inspectionRafRef.current);
+      }
+      if (countdownIntervalRef.current !== null) {
+        clearInterval(countdownIntervalRef.current);
+      }
+      releaseWakeLock();
+    };
+  }, [releaseWakeLock]);
+
+  const clearIntervalRef = (ref: React.MutableRefObject<number | null>): void => {
+    if (ref.current !== null) {
+      clearInterval(ref.current);
+      ref.current = null;
+    }
+  };
+
+  const clearRafRef = (ref: React.MutableRefObject<number | null>): void => {
+    if (ref.current !== null) {
+      cancelAnimationFrame(ref.current);
+      ref.current = null;
+    }
+  };
+
+  const resetPreSolveTimers = (): void => {
+    setInspectionRemainingMs(INSPECTION_DURATION_MS);
+    setCountdownSeconds(PRE_START_COUNTDOWN_SECONDS);
+  };
+
+  const cancelPreSolve = (): void => {
+    clearRafRef(inspectionRafRef);
+    inspectionStartRef.current = null;
+    clearIntervalRef(countdownIntervalRef);
+    setTimerState('idle');
+    setTime(0);
+    resetPreSolveTimers();
+    setScramble(generateScramble());
+    releaseWakeLock();
+  };
+
+  const startCountdown = (): void => {
+    setTimerState('countdown');
+    setCountdownSeconds(PRE_START_COUNTDOWN_SECONDS);
+    const countdownStart = Date.now();
+    countdownIntervalRef.current = window.setInterval(() => {
+      const elapsedSeconds = Math.floor((Date.now() - countdownStart) / 1000);
+      const remaining = Math.max(0, PRE_START_COUNTDOWN_SECONDS - elapsedSeconds);
+      setCountdownSeconds(remaining);
+      if (remaining === 0) {
+        clearIntervalRef(countdownIntervalRef);
+        setTimerState('running');
+        setTime(0);
+        startTimeRef.current = Date.now();
+        intervalRef.current = window.setInterval(() => {
+          if (startTimeRef.current !== null) {
+            setTime(Date.now() - startTimeRef.current);
+          }
+        }, 10);
+        requestWakeLock();
+      }
+    }, 50);
+  };
+
+  const startInspection = (): void => {
+    clearIntervalRef(intervalRef);
+    clearIntervalRef(countdownIntervalRef);
+    clearRafRef(inspectionRafRef);
+    setTimerState('inspection');
+    setTime(0);
+    setInspectionRemainingMs(INSPECTION_DURATION_MS);
+    inspectionStartRef.current = Date.now();
+    const tick = (): void => {
+      if (inspectionStartRef.current === null) {
+        return;
+      }
+      const elapsed = Date.now() - inspectionStartRef.current;
+      const remaining = Math.max(0, INSPECTION_DURATION_MS - elapsed);
+      setInspectionRemainingMs(remaining);
+      if (remaining === 0) {
+        clearRafRef(inspectionRafRef);
+        inspectionStartRef.current = null;
+        startCountdown();
+        return;
+      }
+      inspectionRafRef.current = requestAnimationFrame(tick);
+    };
+    inspectionRafRef.current = requestAnimationFrame(tick);
+    requestWakeLock();
+  };
+
   const handlePressStart = (): void => {
     if (timerState === 'idle' || timerState === 'stopped') {
       const timeout = window.setTimeout(() => {
         setTimerState('ready');
         setTime(0);
       }, 1000);
-      setHoldTimeout(timeout);
+      holdTimeoutRef.current = timeout;
     }
   };
 
   const handlePressEnd = (): void => {
-    if (holdTimeout) {
-      clearTimeout(holdTimeout);
-      setHoldTimeout(null);
+    if (holdTimeoutRef.current !== null) {
+      clearTimeout(holdTimeoutRef.current);
+      holdTimeoutRef.current = null;
     }
 
     if (timerState === 'ready') {
-      setTimerState('running');
-      startTimeRef.current = Date.now();
-      intervalRef.current = window.setInterval(() => {
-        if (startTimeRef.current !== null) {
-          setTime(Date.now() - startTimeRef.current);
-        }
-      }, 10);
-      requestWakeLock();
+      startInspection();
+    } else if (timerState === 'inspection') {
+      cancelPreSolve();
+    } else if (timerState === 'countdown') {
+      cancelPreSolve();
     } else if (timerState === 'running') {
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current);
-      }
+      clearIntervalRef(intervalRef);
       setTimerState('stopped');
       addTime(time, scramble);
       setScramble(generateScramble());
@@ -70,6 +173,8 @@ const TimerPage: React.FC = () => {
   const getStateColor = (): string => {
     switch (timerState) {
       case 'ready': return 'bg-green-400';
+      case 'inspection': return 'bg-orange-300';
+      case 'countdown': return 'bg-yellow-300';
       case 'running': return 'bg-red-400';
       case 'stopped': return 'bg-blue-400';
       default: return 'bg-yellow-400';
@@ -80,10 +185,34 @@ const TimerPage: React.FC = () => {
     switch (timerState) {
       case 'idle': return t('holdToReady');
       case 'ready': return t('releaseToStart');
+      case 'inspection': return t('inspection');
+      case 'countdown': return t('countdown');
       case 'running': return t('solving');
       case 'stopped': return t('clickToReset');
       default: return '';
     }
+  };
+
+  const getCountdownColor = (): string => {
+    if (countdownSeconds >= 4) return 'text-green-700';
+    if (countdownSeconds === 3) return 'text-yellow-700';
+    if (countdownSeconds === 2) return 'text-orange-700';
+    return 'text-red-700';
+  };
+
+  const formatInspectionSeconds = (remainingMs: number): string => {
+    const seconds = Math.max(0, remainingMs) / 1000;
+    return seconds.toFixed(2);
+  };
+
+  const renderTimerValue = (): React.ReactNode => {
+    if (timerState === 'inspection') {
+      return formatInspectionSeconds(inspectionRemainingMs);
+    }
+    if (timerState === 'countdown') {
+      return countdownSeconds;
+    }
+    return formatTime(time);
   };
 
   const currentStats = currentSession ? getStats(currentSession.times.map(t => t.time)) : null;
@@ -125,12 +254,40 @@ const TimerPage: React.FC = () => {
             className={`border-8 border-black ${getStateColor()} p-8 md:p-20 mb-6 cursor-pointer select-none shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all active:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-1.5 active:translate-y-1.5`}
           >
             <div className="text-center">
-              <div className="text-6xl md:text-8xl font-black mb-4 font-mono">
-                {formatTime(time)}
-              </div>
-              <div className="text-xl md:text-2xl font-bold uppercase">
-                {getStateText()}
-              </div>
+              {timerState === 'inspection' ? (
+                <>
+                  <div className="text-sm md:text-base font-bold uppercase mb-3">
+                    {t('inspection')}
+                  </div>
+                  <div className="text-6xl md:text-8xl font-black font-mono">
+                    {renderTimerValue()}
+                  </div>
+                  <div className="text-xs md:text-sm font-bold uppercase mt-1 opacity-70">
+                    {t('inspectionSeconds')}
+                  </div>
+                  <div className="text-sm md:text-base font-bold uppercase mt-4 opacity-70">
+                    {t('tapToCancel')}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div
+                    className={`text-6xl md:text-8xl font-black mb-4 font-mono ${
+                      timerState === 'countdown' ? getCountdownColor() : ''
+                    }`}
+                  >
+                    {renderTimerValue()}
+                  </div>
+                  <div className="text-xl md:text-2xl font-bold uppercase">
+                    {getStateText()}
+                  </div>
+                  {(timerState === 'countdown') && (
+                    <div className="text-sm md:text-base font-bold uppercase mt-2 opacity-70">
+                      {t('countdownSeconds')}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
