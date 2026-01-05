@@ -14,7 +14,7 @@ A professional Progressive Web App (PWA) for timing Rubik's Cube solves, with se
 - **Accurate timer** with centisecond precision
 - **Hold to Start system** - hold to prepare, release to start
 - **Visual state indicators** with color coding (yellow, green, red, blue)
-- **Automatic scramble generator** for each solve (20 random moves)
+- **Automatic scramble generator** for each solve (30 random moves)
 
 ### 📊 Session Management
 - **Multiple sessions** - organize your times in separate sessions
@@ -123,12 +123,18 @@ rubiks-cube-timer/
 │   └── icon-512x512.png      # PWA icon 512x512
 ├── src/
 │   ├── components/
-│   │   └── RubiksTimer.tsx   # Main timer component
-│   ├── firebase.ts           # Firebase configuration
-│   ├── App.tsx               # Root app component
-│   ├── main.tsx              # Entry point + PWA registration
-│   ├── index.css             # Global styles
-│   └── vite-env.d.ts         # TypeScript declarations
+│   │   ├── common/            # Reusable UI components
+│   │   └── layout/            # App layout + navigation
+│   ├── hooks/                 # Reusable hooks (wake lock, confirm dialog)
+│   ├── pages/                 # Routed pages (Timer, Sessions, Statistics)
+│   ├── state/                 # Sessions context + persistence
+│   ├── types/                 # Shared TypeScript types
+│   ├── utils/                 # Scramble, stats, time formatting
+│   ├── firebase.ts            # Firebase configuration
+│   ├── App.tsx                # Router setup
+│   ├── main.tsx               # Entry point + PWA registration
+│   ├── index.css              # Global styles
+│   └── vite-env.d.ts          # TypeScript declarations
 ├── vite.config.ts            # Vite + PWA configuration
 ├── generate-icons.js         # Icon generation script
 ├── PWA_SETUP.md             # PWA setup guide
@@ -148,6 +154,12 @@ rubiks-cube-timer/
 - Click **"New Session"** to create a new session
 - Click the **pencil icon** to rename a session
 - Click the **trash icon** to delete times or sessions
+
+## 🧭 Routing
+- `/` → Timer
+- `/sessions` → Sessions list
+- `/sessions/:sessionId` → Session detail
+- `/statistics` → Global and time-based statistics
 - Switch to **"Stats"** view to see all statistics
 
 ## 🔧 Available Scripts
@@ -189,7 +201,7 @@ The app works completely offline after the first visit, allowing you to:
 
 ### Scramble Algorithm
 The scramble generator creates official WCA-style scrambles:
-- 20 random moves
+- 30 random moves
 - No consecutive moves on the same face
 - No consecutive moves on opposite faces
 - Uses standard notation (R, L, U, D, F, B with ', 2 modifiers)
