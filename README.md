@@ -119,8 +119,7 @@ npm run preview
 rubiks-cube-timer/
 ├── public/
 │   ├── icon.svg              # Source Rubik's Cube icon
-│   ├── icon-192x192.png      # PWA icon 192x192
-│   └── icon-512x512.png      # PWA icon 512x512
+│   ├── icons/                # Icons folder
 ├── src/
 │   ├── components/
 │   │   ├── common/            # Reusable UI components
