@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, Trash2, MoveRight } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSessions } from '../state/SessionsContext';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import ConfirmDialog from '../components/common/ConfirmDialog';
+import MoveTimeDialog from '../components/common/MoveTimeDialog';
+import { useToast } from '../components/common/Toast';
 import { calculateAo5, calculateAo12, getStats } from '../utils/stats';
 import { formatTime } from '../utils/time';
 
@@ -12,8 +14,11 @@ const SessionDetailPage: React.FC = () => {
   const { language, t } = useLanguage();
   const { sessionId } = useParams();
   const navigate = useNavigate();
-  const { sessions, currentSessionId, setCurrentSessionId, deleteTime } = useSessions();
+  const { sessions, currentSessionId, setCurrentSessionId, deleteTime, moveTime } = useSessions();
   const confirmDialog = useConfirmDialog();
+  const { showToast } = useToast();
+  const [moveDialogOpen, setMoveDialogOpen] = useState(false);
+  const [selectedTimeIndex, setSelectedTimeIndex] = useState<number | null>(null);
 
   const session = sessions.find(s => s.id === Number(sessionId));
 
@@ -28,6 +33,24 @@ const SessionDetailPage: React.FC = () => {
   const stats = getStats(session.times.map(t => t.time));
   const ao5 = calculateAo5(session.times.map(t => t.time));
   const ao12 = calculateAo12(session.times.map(t => t.time));
+
+  const handleMoveTime = (toSessionId: number) => {
+    if (selectedTimeIndex !== null) {
+      const isLastTime = session.times.length === 1;
+
+      // Close the dialog and show feedback immediately for better UX
+      setMoveDialogOpen(false);
+      showToast(t('timeMoved'), 'success');
+
+      // Perform the move
+      moveTime(session.id, selectedTimeIndex, toSessionId);
+
+      // If this was the last time in the session, navigate away from this page
+      if (isLastTime) {
+        navigate('/sessions', { replace: true });
+      }
+    }
+  };
 
   return (
     <>
@@ -121,18 +144,31 @@ const SessionDetailPage: React.FC = () => {
                         </div>
                       )}
                     </div>
-                    <button
-                      onClick={() => {
-                        confirmDialog.open(
-                          t('confirmDeleteTitle'),
-                          t('confirmDeleteTime'),
-                          () => deleteTime(session.id, originalIdx)
-                        );
-                      }}
-                      className="p-3 border-4 border-black bg-red-300 hover:bg-red-400 min-w-11 min-h-11 shrink-0"
-                    >
-                      <Trash2 size={20} />
-                    </button>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => {
+                          setSelectedTimeIndex(originalIdx);
+                          setMoveDialogOpen(true);
+                        }}
+                        className="p-3 border-4 border-black bg-cyan-300 hover:bg-cyan-400 min-w-11 min-h-11 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
+                        title={t('moveTime')}
+                      >
+                        <MoveRight size={20} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          confirmDialog.open(
+                            t('confirmDeleteTitle'),
+                            t('confirmDeleteTime'),
+                            () => deleteTime(session.id, originalIdx)
+                          );
+                        }}
+                        className="p-3 border-4 border-black bg-red-300 hover:bg-red-400 min-w-11 min-h-11 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
+                        title={t('delete')}
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -149,6 +185,19 @@ const SessionDetailPage: React.FC = () => {
         cancelLabel={t('cancel')}
         onConfirm={confirmDialog.confirm}
         onClose={confirmDialog.close}
+      />
+
+      <MoveTimeDialog
+        isOpen={moveDialogOpen}
+        fromSessionId={session.id}
+        timeIndex={selectedTimeIndex ?? 0}
+        sessions={sessions}
+        onMove={handleMoveTime}
+        onClose={() => setMoveDialogOpen(false)}
+        title={t('moveTimeTitle')}
+        subtitle={t('moveTimeSubtitle')}
+        cancelLabel={t('cancel')}
+        noSessionsMessage={t('noAvailableSessions')}
       />
     </>
   );

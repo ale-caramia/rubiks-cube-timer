@@ -52,6 +52,11 @@ export const translations = {
     confirmDeleteSession: 'Vuoi eliminare la sessione',
     delete: 'Elimina',
     cancel: 'Annulla',
+    moveTime: 'Sposta',
+    moveTimeTitle: 'Sposta giocata',
+    moveTimeSubtitle: 'Seleziona la sessione di destinazione (stesso mese e settimana)',
+    noAvailableSessions: 'Nessuna sessione disponibile nello stesso mese e settimana. Crea una nuova sessione per spostare questa giocata.',
+    timeMoved: 'Giocata spostata con successo',
 
     // Time-based stats
     timeBasedStats: 'Statistiche per Periodo',
@@ -128,6 +133,11 @@ export const translations = {
     confirmDeleteSession: 'Do you want to delete the session',
     delete: 'Delete',
     cancel: 'Cancel',
+    moveTime: 'Move',
+    moveTimeTitle: 'Move Solve',
+    moveTimeSubtitle: 'Select destination session (same month and week)',
+    noAvailableSessions: 'No sessions available in the same month and week. Create a new session to move this solve.',
+    timeMoved: 'Solve moved successfully',
 
     // Time-based stats
     timeBasedStats: 'Time-Based Statistics',
