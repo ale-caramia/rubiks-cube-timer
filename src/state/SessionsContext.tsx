@@ -95,6 +95,34 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [sessionsLoaded, sessions.length]);
 
+  // Auto-create new session if last solve was 6+ hours ago
+  useEffect(() => {
+    if (!sessionsLoaded || sessions.length === 0) return;
+
+    // Find the most recent solve across all sessions
+    let lastSolveTimestamp: number | null = null;
+    for (const session of sessions) {
+      for (const timeEntry of session.times) {
+        if (lastSolveTimestamp === null || timeEntry.timestamp > lastSolveTimestamp) {
+          lastSolveTimestamp = timeEntry.timestamp;
+        }
+      }
+    }
+
+    // If there are no solves yet, don't create a new session
+    if (lastSolveTimestamp === null) return;
+
+    // Check if 6 hours (21600000 ms) have passed since the last solve
+    const now = Date.now();
+    const sixHoursInMs = 6 * 60 * 60 * 1000;
+    const timeSinceLastSolve = now - lastSolveTimestamp;
+
+    if (timeSinceLastSolve >= sixHoursInMs) {
+      // Create a new session and set it as current
+      createSession();
+    }
+  }, [sessionsLoaded]);
+
   const createSession = (forcedNumber?: number): void => {
     let createdId: number | null = null;
     setSessions(prev => {
