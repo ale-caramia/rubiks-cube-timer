@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 interface MoveTimeDialogProps {
   isOpen: boolean;
   fromSessionId: number;
+  // Index of the time entry being moved; intentionally unused here but kept for parent validation/future use.
   timeIndex: number;
   sessions: Session[];
   onMove: (toSessionId: number) => void;
