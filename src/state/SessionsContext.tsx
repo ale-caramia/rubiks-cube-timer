@@ -96,6 +96,36 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [sessionsLoaded, sessions.length]);
 
+  // Auto-create new session if last solve was 6+ hours ago
+  useEffect(() => {
+    if (!sessionsLoaded || sessions.length === 0) return;
+
+    // Find the most recent solve across all sessions
+    let lastSolveTimestamp: number | null = null;
+    for (const session of sessions) {
+      for (const timeEntry of session.times) {
+        if (lastSolveTimestamp === null || timeEntry.timestamp > lastSolveTimestamp) {
+          lastSolveTimestamp = timeEntry.timestamp;
+        }
+      }
+    }
+
+    // If there are no solves yet, don't create a new session
+    if (lastSolveTimestamp === null) return;
+
+    // Check if 6 hours (21600000 ms) have passed since the last solve
+    const now = Date.now();
+    const sixHoursInMs = 6 * 60 * 60 * 1000;
+    const timeSinceLastSolve = now - lastSolveTimestamp;
+
+    if (timeSinceLastSolve >= sixHoursInMs) {
+      // Delete all empty sessions before creating a new one
+      setSessions(prev => prev.filter(s => s.times.length > 0));
+      // Create a new session and set it as current
+      createSession();
+    }
+  }, [sessionsLoaded]);
+
   const createSession = (forcedNumber?: number): void => {
     let createdId: number | null = null;
     setSessions(prev => {
@@ -156,18 +186,69 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const addTime = (timeMs: number, scramble: string): void => {
     if (!currentSessionId) return;
-    setSessions(prev => prev.map(session =>
-      session.id === currentSessionId
-        ? {
-            ...session,
-            times: [...session.times, {
-              time: timeMs,
-              timestamp: Date.now(),
-              scramble
-            }]
-          }
-        : session
-    ));
+
+    // Check if we need to create a new session due to inactivity
+    let lastSolveTimestamp: number | null = null;
+    for (const session of sessions) {
+      for (const timeEntry of session.times) {
+        if (lastSolveTimestamp === null || timeEntry.timestamp > lastSolveTimestamp) {
+          lastSolveTimestamp = timeEntry.timestamp;
+        }
+      }
+    }
+
+    const now = Date.now();
+    const sixHoursInMs = 6 * 60 * 60 * 1000;
+
+    // If 6+ hours have passed since last solve, create a new session
+    if (lastSolveTimestamp !== null && (now - lastSolveTimestamp) >= sixHoursInMs) {
+      let newSessionId: number | null = null;
+
+      setSessions(prev => {
+        // Filter out empty sessions
+        const nonEmptySessions = prev.filter(s => s.times.length > 0);
+
+        // Create new session with the new time
+        const sessionNumber = nonEmptySessions.length + 1;
+        let newId = Date.now();
+        const existingIds = new Set(nonEmptySessions.map(s => s.id));
+        while (existingIds.has(newId)) {
+          newId += 1;
+        }
+
+        const newSession: Session = {
+          id: newId,
+          name: `${t('session')} ${sessionNumber}`,
+          date: new Date().toISOString(),
+          times: [{
+            time: timeMs,
+            timestamp: now,
+            scramble
+          }]
+        };
+
+        newSessionId = newId;
+        return [...nonEmptySessions, newSession];
+      });
+
+      if (newSessionId !== null) {
+        setCurrentSessionId(newSessionId);
+      }
+    } else {
+      // Normal add time to current session
+      setSessions(prev => prev.map(session =>
+        session.id === currentSessionId
+          ? {
+              ...session,
+              times: [...session.times, {
+                time: timeMs,
+                timestamp: now,
+                scramble
+              }]
+            }
+          : session
+      ));
+    }
   };
 
   const moveTime = (fromSessionId: number, timeIndex: number, toSessionId: number): void => {
