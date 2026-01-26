@@ -36,8 +36,19 @@ const SessionDetailPage: React.FC = () => {
 
   const handleMoveTime = (toSessionId: number) => {
     if (selectedTimeIndex !== null) {
-      moveTime(session.id, selectedTimeIndex, toSessionId);
+      const isLastTime = session.times.length === 1;
+
+      // Close the dialog and show feedback immediately for better UX
+      setMoveDialogOpen(false);
       showToast(t('timeMoved'), 'success');
+
+      // Perform the move
+      moveTime(session.id, selectedTimeIndex, toSessionId);
+
+      // If this was the last time in the session, navigate away from this page
+      if (isLastTime) {
+        navigate('/sessions', { replace: true });
+      }
     }
   };
 
