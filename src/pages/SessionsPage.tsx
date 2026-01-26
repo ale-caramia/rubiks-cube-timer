@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ArrowLeft, Calendar, Check, ChevronRight, Edit2, FolderOpen, Plus, Trash2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -79,6 +79,19 @@ const SessionsPage: React.FC = () => {
     if (viewState.type !== 'sessions' || !currentMonth) return null;
     return currentMonth.weeks.find(w => w.weekKey === viewState.weekKey) || null;
   }, [viewState, currentMonth]);
+
+  // Reset view state if selected group no longer exists (e.g., after deleting last session)
+  useEffect(() => {
+    if (viewState.type === 'weeks' && !currentMonth) {
+      setViewState({ type: 'months' });
+    } else if (viewState.type === 'sessions' && (!currentMonth || !currentWeek)) {
+      if (currentMonth) {
+        setViewState({ type: 'weeks', monthKey: viewState.monthKey });
+      } else {
+        setViewState({ type: 'months' });
+      }
+    }
+  }, [viewState, currentMonth, currentWeek]);
 
   // Render month folders view
   const renderMonthsView = () => (

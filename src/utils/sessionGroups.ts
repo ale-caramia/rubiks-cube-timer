@@ -96,9 +96,10 @@ export const groupSessionsByMonthAndWeek = (sessions: Session[]): MonthGroup[] =
     return b.month - a.month;
   });
 
-  // Sort weeks within each month from newest to oldest
+  // Sort weeks within each month from newest to oldest by startDate
+  // (using weekNumber alone fails at ISO year boundaries, e.g., week 52 vs week 1 in January)
   for (const monthGroup of sortedMonths) {
-    monthGroup.weeks.sort((a, b) => b.weekNumber - a.weekNumber);
+    monthGroup.weeks.sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
   }
 
   return sortedMonths;
@@ -111,9 +112,10 @@ export const getAllTimeEntries = (sessions: Session[]): TimeEntry[] => {
 
 // Calculate aggregated stats for a group of sessions
 export const getGroupStats = (sessions: Session[]) => {
-  const allTimes = sessions.flatMap(s => s.times.map(t => t.time));
+  // Get all time entries with timestamps for proper ordering
+  const allEntries = sessions.flatMap(s => s.times);
 
-  if (allTimes.length === 0) {
+  if (allEntries.length === 0) {
     return {
       count: 0,
       sessionCount: sessions.length,
@@ -125,22 +127,27 @@ export const getGroupStats = (sessions: Session[]) => {
     };
   }
 
+  const allTimes = allEntries.map(e => e.time);
   const sorted = [...allTimes].sort((a, b) => a - b);
 
-  // Calculate Ao5 (average of 5, removing best and worst)
+  // Sort entries by timestamp (newest first) for AO calculations
+  const entriesByTimestamp = [...allEntries].sort((a, b) => b.timestamp - a.timestamp);
+  const recentTimes = entriesByTimestamp.map(e => e.time);
+
+  // Calculate Ao5 (average of 5 most recent, removing best and worst)
   let ao5: number | null = null;
-  if (allTimes.length >= 5) {
-    const last5 = allTimes.slice(-5);
-    const sorted5 = [...last5].sort((a, b) => a - b);
+  if (recentTimes.length >= 5) {
+    const recent5 = recentTimes.slice(0, 5);
+    const sorted5 = [...recent5].sort((a, b) => a - b);
     const middle3 = sorted5.slice(1, 4);
     ao5 = middle3.reduce((a, b) => a + b, 0) / 3;
   }
 
-  // Calculate Ao12 (average of 12, removing best and worst)
+  // Calculate Ao12 (average of 12 most recent, removing best and worst)
   let ao12: number | null = null;
-  if (allTimes.length >= 12) {
-    const last12 = allTimes.slice(-12);
-    const sorted12 = [...last12].sort((a, b) => a - b);
+  if (recentTimes.length >= 12) {
+    const recent12 = recentTimes.slice(0, 12);
+    const sorted12 = [...recent12].sort((a, b) => a - b);
     const middle10 = sorted12.slice(1, 11);
     ao12 = middle10.reduce((a, b) => a + b, 0) / 10;
   }
