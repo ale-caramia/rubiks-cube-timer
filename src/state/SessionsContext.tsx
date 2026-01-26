@@ -45,6 +45,17 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [sessionsLoaded, setSessionsLoaded] = useState(false);
 
+  const getMostRecentSessionId = (list: Session[]): number | null => {
+    if (list.length === 0) return null;
+    return list.reduce((latest, session) => {
+      const latestTime = new Date(latest.date).getTime();
+      const sessionTime = new Date(session.date).getTime();
+      if (sessionTime > latestTime) return session;
+      if (sessionTime === latestTime && session.id > latest.id) return session;
+      return latest;
+    }).id;
+  };
+
   useEffect(() => {
     const loadSessions = async (): Promise<void> => {
       try {
@@ -127,28 +138,22 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [sessionsLoaded]);
 
   const createSession = (forcedNumber?: number): void => {
-    let createdId: number | null = null;
-    setSessions(prev => {
-      const sessionNumber = typeof forcedNumber === 'number' ? forcedNumber : (prev.length + 1);
-
-      let newId = Date.now();
-      const existingIds = new Set(prev.map(s => s.id));
-      while (existingIds.has(newId)) {
-        newId += 1;
-      }
-
-      const newSession: Session = {
-        id: newId,
-        name: `${t('session')} ${sessionNumber}`,
-        date: new Date().toISOString(),
-        times: []
-      };
-      createdId = newId;
-      return [...prev, newSession];
-    });
-    if (createdId !== null) {
-      setCurrentSessionId(createdId);
+    const sessionNumber = typeof forcedNumber === 'number' ? forcedNumber : (sessions.length + 1);
+    let newId = Date.now();
+    const existingIds = new Set(sessions.map(s => s.id));
+    while (existingIds.has(newId)) {
+      newId += 1;
     }
+
+    const newSession: Session = {
+      id: newId,
+      name: `${t('session')} ${sessionNumber}`,
+      date: new Date().toISOString(),
+      times: []
+    };
+
+    setSessions(prev => [...prev, newSession]);
+    setCurrentSessionId(newId);
   };
 
   const renameSession = (sessionId: number, newName: string): void => {
@@ -160,11 +165,12 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const deleteSession = (sessionId: number): void => {
-    setSessions(prev => prev.filter(s => s.id !== sessionId));
+    const remaining = sessions.filter(s => s.id !== sessionId);
+    setSessions(remaining);
 
     if (sessionId === currentSessionId) {
-      const remaining = sessions.filter(s => s.id !== sessionId);
-      setCurrentSessionId(remaining[0]?.id || null);
+      const nextId = getMostRecentSessionId(remaining);
+      setCurrentSessionId(nextId);
       if (remaining.length === 0) {
         createSession(1);
       }
@@ -202,38 +208,30 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     // If 6+ hours have passed since last solve, create a new session
     if (lastSolveTimestamp !== null && (now - lastSolveTimestamp) >= sixHoursInMs) {
-      let newSessionId: number | null = null;
+      // Filter out empty sessions
+      const nonEmptySessions = sessions.filter(s => s.times.length > 0);
 
-      setSessions(prev => {
-        // Filter out empty sessions
-        const nonEmptySessions = prev.filter(s => s.times.length > 0);
-
-        // Create new session with the new time
-        const sessionNumber = nonEmptySessions.length + 1;
-        let newId = Date.now();
-        const existingIds = new Set(nonEmptySessions.map(s => s.id));
-        while (existingIds.has(newId)) {
-          newId += 1;
-        }
-
-        const newSession: Session = {
-          id: newId,
-          name: `${t('session')} ${sessionNumber}`,
-          date: new Date().toISOString(),
-          times: [{
-            time: timeMs,
-            timestamp: now,
-            scramble
-          }]
-        };
-
-        newSessionId = newId;
-        return [...nonEmptySessions, newSession];
-      });
-
-      if (newSessionId !== null) {
-        setCurrentSessionId(newSessionId);
+      // Create new session with the new time
+      const sessionNumber = nonEmptySessions.length + 1;
+      let newId = Date.now();
+      const existingIds = new Set(nonEmptySessions.map(s => s.id));
+      while (existingIds.has(newId)) {
+        newId += 1;
       }
+
+      const newSession: Session = {
+        id: newId,
+        name: `${t('session')} ${sessionNumber}`,
+        date: new Date().toISOString(),
+        times: [{
+          time: timeMs,
+          timestamp: now,
+          scramble
+        }]
+      };
+
+      setSessions(prev => [...prev.filter(s => s.times.length > 0), newSession]);
+      setCurrentSessionId(newId);
     } else {
       // Normal add time to current session
       setSessions(prev => prev.map(session =>
@@ -283,7 +281,8 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // If we deleted the current session, switch to another one
     if (willDeleteFromSession && fromSessionId === currentSessionId) {
       const remaining = sessions.filter(s => s.id !== fromSessionId);
-      setCurrentSessionId(remaining[0]?.id || null);
+      const nextId = getMostRecentSessionId(remaining);
+      setCurrentSessionId(nextId);
       if (remaining.length === 0) {
         createSession(1);
       }

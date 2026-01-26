@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ArrowLeft, Calendar, Check, ChevronRight, Edit2, FolderOpen, Plus, Trash2, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSessions } from '../state/SessionsContext';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
@@ -31,6 +31,7 @@ const SessionsPage: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>({ type: 'months' });
   const confirmDialog = useConfirmDialog();
   const navigate = useNavigate();
+  const location = useLocation();
   const { showToast } = useToast();
 
   const locale = language === 'it' ? 'it-IT' : 'en-US';
@@ -92,6 +93,18 @@ const SessionsPage: React.FC = () => {
       }
     }
   }, [viewState, currentMonth, currentWeek]);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const monthKey = searchParams.get('month');
+    const weekKey = searchParams.get('week');
+
+    if (monthKey && weekKey) {
+      setViewState({ type: 'sessions', monthKey, weekKey });
+    } else if (monthKey) {
+      setViewState({ type: 'weeks', monthKey });
+    }
+  }, [location.search]);
 
   // Render month folders view
   const renderMonthsView = () => (

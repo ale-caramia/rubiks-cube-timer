@@ -5,6 +5,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useSessions } from '../../state/SessionsContext';
 import DesktopTabs from './DesktopTabs';
 import MobileNav from './MobileNav';
+import { getMonthKey, getWeekKey } from '../../utils/sessionGroups';
 
 const AppLayout: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -13,6 +14,8 @@ const AppLayout: React.FC = () => {
   const sessionDetailMatch = useMatch('/sessions/:sessionId');
   const { sessionId } = useParams();
   const detailSession = sessionId ? sessions.find(s => s.id === Number(sessionId)) : null;
+  const detailMonthKey = detailSession ? getMonthKey(new Date(detailSession.date)) : null;
+  const detailWeekKey = detailSession ? getWeekKey(new Date(detailSession.date)) : null;
 
   return (
     <div className="min-h-screen bg-white pb-20 md:pb-8">
@@ -41,7 +44,13 @@ const AppLayout: React.FC = () => {
           {sessionDetailMatch && detailSession && (
             <div className="mt-4 flex items-center gap-2 text-sm font-bold">
               <button
-                onClick={() => navigate('/sessions')}
+                onClick={() => {
+                  if (detailMonthKey && detailWeekKey) {
+                    navigate(`/sessions?month=${detailMonthKey}&week=${detailWeekKey}`);
+                  } else {
+                    navigate('/sessions');
+                  }
+                }}
                 className="hover:underline"
               >
                 {t('sessions')}

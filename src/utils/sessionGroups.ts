@@ -25,6 +25,20 @@ const getWeekNumber = (date: Date): number => {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 };
 
+// Get month key (YYYY-MM)
+export const getMonthKey = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  return `${year}-${String(month + 1).padStart(2, '0')}`;
+};
+
+// Get week key (YYYY-WNN)
+export const getWeekKey = (date: Date): string => {
+  const year = date.getFullYear();
+  const weekNumber = getWeekNumber(date);
+  return `${year}-W${String(weekNumber).padStart(2, '0')}`;
+};
+
 // Get start of week (Monday)
 const getWeekStart = (date: Date): Date => {
   const d = new Date(date);
@@ -57,7 +71,7 @@ export const groupSessionsByMonthAndWeek = (sessions: Session[]): MonthGroup[] =
     const date = new Date(session.date);
     const year = date.getFullYear();
     const month = date.getMonth();
-    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const monthKey = getMonthKey(date);
 
     if (!monthMap.has(monthKey)) {
       monthMap.set(monthKey, {
@@ -74,7 +88,7 @@ export const groupSessionsByMonthAndWeek = (sessions: Session[]): MonthGroup[] =
 
     // Add to week group
     const weekNumber = getWeekNumber(date);
-    const weekKey = `${year}-W${String(weekNumber).padStart(2, '0')}`;
+    const weekKey = getWeekKey(date);
 
     let weekGroup = monthGroup.weeks.find(w => w.weekKey === weekKey);
     if (!weekGroup) {

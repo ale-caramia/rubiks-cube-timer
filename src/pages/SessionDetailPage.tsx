@@ -9,6 +9,7 @@ import MoveTimeDialog from '../components/common/MoveTimeDialog';
 import { useToast } from '../components/common/Toast';
 import { calculateAo5, calculateAo12, getStats } from '../utils/stats';
 import { formatTime } from '../utils/time';
+import { getMonthKey, getWeekKey } from '../utils/sessionGroups';
 
 const SessionDetailPage: React.FC = () => {
   const { language, t } = useLanguage();
@@ -33,6 +34,8 @@ const SessionDetailPage: React.FC = () => {
   const stats = getStats(session.times.map(t => t.time));
   const ao5 = calculateAo5(session.times.map(t => t.time));
   const ao12 = calculateAo12(session.times.map(t => t.time));
+  const sessionMonthKey = getMonthKey(new Date(session.date));
+  const sessionWeekKey = getWeekKey(new Date(session.date));
 
   const handleMoveTime = (toSessionId: number) => {
     if (selectedTimeIndex !== null) {
@@ -47,7 +50,7 @@ const SessionDetailPage: React.FC = () => {
 
       // If this was the last time in the session, navigate away from this page
       if (isLastTime) {
-        navigate('/sessions', { replace: true });
+        navigate(`/sessions?month=${sessionMonthKey}&week=${sessionWeekKey}`, { replace: true });
       }
     }
   };
@@ -58,7 +61,7 @@ const SessionDetailPage: React.FC = () => {
         <div className="border-4 border-black bg-yellow-300 p-4 md:p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <div className="flex items-start gap-3">
             <button
-              onClick={() => navigate('/sessions')}
+              onClick={() => navigate(`/sessions?month=${sessionMonthKey}&week=${sessionWeekKey}`)}
               className="p-3 min-w-11 min-h-11 border-4 border-black bg-white hover:bg-gray-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center"
               aria-label={t('back')}
             >
