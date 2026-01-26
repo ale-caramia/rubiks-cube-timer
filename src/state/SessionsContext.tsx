@@ -12,6 +12,7 @@ interface SessionsContextValue {
   deleteSession: (sessionId: number) => void;
   deleteTime: (sessionId: number, timeIndex: number) => void;
   addTime: (timeMs: number, scramble: string) => void;
+  moveTime: (fromSessionId: number, timeIndex: number, toSessionId: number) => void;
 }
 
 const SessionsContext = createContext<SessionsContextValue | null>(null);
@@ -169,6 +170,45 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     ));
   };
 
+  const moveTime = (fromSessionId: number, timeIndex: number, toSessionId: number): void => {
+    const fromSession = sessions.find(s => s.id === fromSessionId);
+    if (!fromSession || timeIndex < 0 || timeIndex >= fromSession.times.length) {
+      return;
+    }
+
+    const timeEntry = fromSession.times[timeIndex];
+    const willDeleteFromSession = fromSession.times.length === 1;
+
+    setSessions(prev => {
+      let updated = prev.map(session => {
+        if (session.id === fromSessionId) {
+          // Remove from source session
+          return { ...session, times: session.times.filter((_, i) => i !== timeIndex) };
+        } else if (session.id === toSessionId) {
+          // Add to destination session
+          return { ...session, times: [...session.times, timeEntry] };
+        }
+        return session;
+      });
+
+      // If source session is now empty, remove it
+      if (willDeleteFromSession) {
+        updated = updated.filter(s => s.id !== fromSessionId);
+      }
+
+      return updated;
+    });
+
+    // If we deleted the current session, switch to another one
+    if (willDeleteFromSession && fromSessionId === currentSessionId) {
+      const remaining = sessions.filter(s => s.id !== fromSessionId);
+      setCurrentSessionId(remaining[0]?.id || null);
+      if (remaining.length === 0) {
+        createSession(1);
+      }
+    }
+  };
+
   const currentSession = useMemo(
     () => sessions.find(s => s.id === currentSessionId) || null,
     [sessions, currentSessionId]
@@ -183,7 +223,8 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     renameSession,
     deleteSession,
     deleteTime,
-    addTime
+    addTime,
+    moveTime
   };
 
   return (
