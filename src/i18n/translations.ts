@@ -59,6 +59,23 @@ export const translations = {
     thisWeek: 'Questa Settimana',
     thisMonth: 'Questo Mese',
     noData: 'Nessun dato',
+
+    // Session folders
+    monthlyFolders: 'Cartelle Mensili',
+    weeklyFolders: 'Settimane',
+    week: 'Settimana',
+    monthStats: 'Statistiche del Mese',
+    weekStats: 'Statistiche della Settimana',
+    sessionsInMonth: 'sessioni in questo mese',
+    sessionsInWeek: 'sessioni in questa settimana',
+    noSessions: 'Nessuna sessione',
+    backToMonths: 'Torna ai mesi',
+    backToWeeks: 'Torna alle settimane',
+
+    // Toast messages
+    sessionCreated: 'Nuova sessione creata',
+    sessionDeleted: 'Sessione eliminata',
+    sessionRenamed: 'Sessione rinominata',
   },
   en: {
     // Header
@@ -118,6 +135,23 @@ export const translations = {
     thisWeek: 'This Week',
     thisMonth: 'This Month',
     noData: 'No data',
+
+    // Session folders
+    monthlyFolders: 'Monthly Folders',
+    weeklyFolders: 'Weeks',
+    week: 'Week',
+    monthStats: 'Month Statistics',
+    weekStats: 'Week Statistics',
+    sessionsInMonth: 'sessions in this month',
+    sessionsInWeek: 'sessions in this week',
+    noSessions: 'No sessions',
+    backToMonths: 'Back to months',
+    backToWeeks: 'Back to weeks',
+
+    // Toast messages
+    sessionCreated: 'New session created',
+    sessionDeleted: 'Session deleted',
+    sessionRenamed: 'Session renamed',
   }
 };
 
