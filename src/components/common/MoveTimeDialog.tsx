@@ -34,9 +34,13 @@ const getMonthKey = (date: Date): string => {
 
 // Get week key (YYYY-WNN)
 const getWeekKey = (date: Date): string => {
-  const year = date.getFullYear();
+  // Determine ISO week year by adjusting to Thursday of the current ISO week
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const isoYear = d.getUTCFullYear();
   const weekNumber = getWeekNumber(date);
-  return `${year}-W${String(weekNumber).padStart(2, '0')}`;
+  return `${isoYear}-W${String(weekNumber).padStart(2, '0')}`;
 };
 
 const MoveTimeDialog: React.FC<MoveTimeDialogProps> = ({
