@@ -75,7 +75,7 @@ The app now supports:
 
 Configura questi **GitHub Secrets** nel repository:
 - `FIREBASE_PROJECT_ID`
-- `FIREBASE_SERVICE_ACCOUNT` (JSON dell'account di servizio Firebase, come stringa)
+- `FIREBASE_SERVICE_ACCOUNT` (JSON dell'account di servizio Firebase, come stringa) **oppure** `FIREBASE_SERVICE_ACCOUNT_RUBIKS_CUBE_TIMER`
 - `VITE_FIREBASE_API_KEY`
 - `VITE_FIREBASE_AUTH_DOMAIN`
 - `VITE_FIREBASE_PROJECT_ID`
@@ -84,6 +84,8 @@ Configura questi **GitHub Secrets** nel repository:
 - `VITE_FIREBASE_APP_ID`
 
 > Nota: `FIREBASE_PROJECT_ID` (deploy) e `VITE_FIREBASE_PROJECT_ID` (build client) possono avere lo stesso valore, ma sono mantenuti separati per chiarezza.
+> Se vedi l'errore `Input required and not supplied: firebaseServiceAccount`, significa che manca il secret del service account: aggiungi `FIREBASE_SERVICE_ACCOUNT` oppure usa il nome auto-generato `FIREBASE_SERVICE_ACCOUNT_RUBIKS_CUBE_TIMER`.
+
 
 ## 🚀 Installation and Usage
 
