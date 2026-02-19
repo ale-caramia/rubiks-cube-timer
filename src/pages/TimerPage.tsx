@@ -6,6 +6,7 @@ import { useWakeLock } from '../hooks/useWakeLock';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { generateScramble } from '../utils/scramble';
+import { CUBE_MODES, getCubeModeMeta } from '../utils/cubeModes';
 import { formatTime } from '../utils/time';
 import { calculateAo5, calculateAo12, calculateBestAo5, calculateBestAo12, getStats } from '../utils/stats';
 import type { TimerState } from '../types/timer';
@@ -15,7 +16,7 @@ const PRE_START_COUNTDOWN_SECONDS = 5;
 
 const TimerPage: React.FC = () => {
   const { t } = useLanguage();
-  const { currentSession, addTime, deleteTime } = useSessions();
+  const { currentSession, addTime, deleteTime, selectedCubeMode, setSelectedCubeMode } = useSessions();
   const [timerState, setTimerState] = useState<TimerState>('idle');
   const [time, setTime] = useState<number>(0);
   const holdTimeoutRef = useRef<number | null>(null);
@@ -34,9 +35,9 @@ const TimerPage: React.FC = () => {
 
   useEffect(() => {
     if (!scramble) {
-      setScramble(generateScramble());
+      setScramble(generateScramble(selectedCubeMode));
     }
-  }, [scramble]);
+  }, [scramble, selectedCubeMode]);
 
   useEffect(() => {
     return () => {
@@ -82,7 +83,7 @@ const TimerPage: React.FC = () => {
     setTimerState('idle');
     setTime(0);
     resetPreSolveTimers();
-    setScramble(generateScramble());
+    setScramble(generateScramble(selectedCubeMode));
     releaseWakeLock();
   };
 
@@ -162,7 +163,7 @@ const TimerPage: React.FC = () => {
       clearIntervalRef(intervalRef);
       setTimerState('stopped');
       addTime(time, scramble);
-      setScramble(generateScramble());
+      setScramble(generateScramble(selectedCubeMode));
       releaseWakeLock();
     } else if (timerState === 'stopped') {
       setTimerState('idle');
@@ -239,11 +240,30 @@ const TimerPage: React.FC = () => {
         </div>
       ) : (
         <>
+
+          <div className="border-4 border-black bg-white p-3 md:p-4 mb-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <div className="text-sm font-bold uppercase mb-2">Categoria cubo</div>
+            <div className="flex flex-wrap gap-2">
+              {CUBE_MODES.map(mode => (
+                <button
+                  key={mode.id}
+                  onClick={() => {
+                    setSelectedCubeMode(mode.id);
+                    setScramble(generateScramble(mode.id));
+                  }}
+                  className={`px-3 py-2 border-4 border-black font-bold uppercase text-xs md:text-sm ${mode.accentClass} ${selectedCubeMode === mode.id ? 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'opacity-80'}`}
+                >
+                  {mode.shortLabel}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="border-4 border-black bg-cyan-300 p-4 md:p-6 mb-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <div className="text-sm font-bold uppercase mb-2">{t('scramble')}</div>
             <div className="text-2xl md:text-3xl font-black font-mono wrap-break-word">
               {scramble}
             </div>
+            <div className="text-xs font-bold uppercase mt-2">Modalità: {getCubeModeMeta(selectedCubeMode).label}</div>
           </div>
 
           <div
