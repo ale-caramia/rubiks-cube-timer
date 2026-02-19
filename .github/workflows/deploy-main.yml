@@ -29,6 +29,7 @@ jobs:
           cat > firebase.json <<'JSON'
           {
             "hosting": {
+              "site": "rubiks-timer",
               "public": "dist",
               "ignore": [
                 "firebase.json",
@@ -44,6 +45,12 @@ jobs:
             }
           }
           JSON
+
+      - name: Debug deploy target
+        run: |
+          echo "Deploying commit: $GITHUB_SHA"
+          echo "Firebase project: ${{ secrets.FIREBASE_PROJECT_ID }}"
+          echo "Firebase hosting site: rubiks-timer"
 
       - name: Build app
         run: npm run build
