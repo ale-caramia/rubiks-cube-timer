@@ -43,6 +43,50 @@ A professional Progressive Web App (PWA) for timing Rubik's Cube solves, with se
 - **Accessible** - clear and intuitive interface
 - **Animations** - smooth transitions and visual feedback
 
+
+## 🔐 Firebase Configuration
+
+Create a `.env` file with these variables:
+
+```bash
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+```
+
+> Note: Firebase web config values are safe to expose in client code. Security is enforced by Firebase Auth and Firestore Rules.
+
+The app now supports:
+- Google Login (Firebase Auth)
+- Per-user cloud persistence (Firestore)
+- One-click migration from legacy local storage
+- Cube mode preference persistence
+
+
+## 🚀 Deploy automatico su merge in `main`
+
+È stata aggiunta la GitHub Action `.github/workflows/deploy-main.yml` che:
+- si attiva su `push` al branch `main` (quindi anche dopo merge di PR),
+- esegue `npm ci` e `npm run build`,
+- pubblica su Firebase Hosting canale `live`.
+
+Configura questi **GitHub Secrets** nel repository:
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_SERVICE_ACCOUNT` (JSON dell'account di servizio Firebase, come stringa) **oppure** `FIREBASE_SERVICE_ACCOUNT_RUBIKS_CUBE_TIMER`
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+
+> Nota: `FIREBASE_PROJECT_ID` (deploy) e `VITE_FIREBASE_PROJECT_ID` (build client) possono avere lo stesso valore, ma sono mantenuti separati per chiarezza.
+> Se vedi l'errore `Input required and not supplied: firebaseServiceAccount`, significa che manca il secret del service account: aggiungi `FIREBASE_SERVICE_ACCOUNT` oppure usa il nome auto-generato `FIREBASE_SERVICE_ACCOUNT_RUBIKS_CUBE_TIMER`.
+
+
 ## 🚀 Installation and Usage
 
 ### Prerequisites

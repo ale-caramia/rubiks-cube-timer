@@ -2,17 +2,23 @@ import React from 'react';
 import { Award, TrendingDown, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSessions } from '../state/SessionsContext';
+import { getCubeModeMeta } from '../utils/cubeModes';
 import { formatTime } from '../utils/time';
 import { getStats, getDailyStats, getWeeklyStats, getMonthlyStats } from '../utils/stats';
 
 const StatisticsPage: React.FC = () => {
   const { t } = useLanguage();
-  const { sessions } = useSessions();
-  const allTimes = sessions.flatMap(s => s.times.map(t => t.time));
+  const { sessions, selectedCubeMode } = useSessions();
+  const modeSessions = sessions.filter(session => session.cubeMode === selectedCubeMode);
+  const allTimes = modeSessions.flatMap(s => s.times.map(t => t.time));
   const globalStats = getStats(allTimes);
 
   return (
     <div className="space-y-4 md:space-y-6">
+      <div className="border-4 border-black bg-yellow-100 p-3 font-bold uppercase text-sm">
+        Modalità attiva: {getCubeModeMeta(selectedCubeMode).label}
+      </div>
+
       {globalStats && (
         <div className="border-4 border-black bg-linear-to-br from-orange-300 to-orange-200 p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-2xl md:text-3xl font-black uppercase mb-6">{t('globalStats')}</h2>
@@ -41,7 +47,7 @@ const StatisticsPage: React.FC = () => {
         <h2 className="text-2xl md:text-3xl font-black uppercase mb-4">{t('timeBasedStats')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {(() => {
-            const stats = getDailyStats(sessions);
+            const stats = getDailyStats(modeSessions);
             return (
               <div className="border-4 border-black bg-linear-to-br from-blue-300 to-blue-200 p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                 <div className="flex items-center justify-between mb-4">
@@ -77,7 +83,7 @@ const StatisticsPage: React.FC = () => {
           })()}
 
           {(() => {
-            const stats = getWeeklyStats(sessions);
+            const stats = getWeeklyStats(modeSessions);
             return (
               <div className="border-4 border-black bg-linear-to-br from-purple-300 to-purple-200 p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                 <div className="flex items-center justify-between mb-4">
@@ -113,7 +119,7 @@ const StatisticsPage: React.FC = () => {
           })()}
 
           {(() => {
-            const stats = getMonthlyStats(sessions);
+            const stats = getMonthlyStats(modeSessions);
             return (
               <div className="border-4 border-black bg-linear-to-br from-pink-300 to-pink-200 p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                 <div className="flex items-center justify-between mb-4">
