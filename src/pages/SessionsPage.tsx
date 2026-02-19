@@ -3,6 +3,7 @@ import { ArrowLeft, Calendar, Check, ChevronRight, Edit2, FolderOpen, Plus, Tras
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSessions } from '../state/SessionsContext';
+import { getCubeModeMeta } from '../utils/cubeModes';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import { useToast } from '../components/common/Toast';
 import ConfirmDialog from '../components/common/ConfirmDialog';
@@ -25,7 +26,7 @@ type ViewState =
 
 const SessionsPage: React.FC = () => {
   const { language, t } = useLanguage();
-  const { sessions, currentSessionId, createSession, renameSession, deleteSession } = useSessions();
+  const { sessions, currentSessionId, createSession, renameSession, deleteSession, selectedCubeMode } = useSessions();
   const [editingSessionId, setEditingSessionId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState<string>('');
   const [viewState, setViewState] = useState<ViewState>({ type: 'months' });
@@ -36,8 +37,10 @@ const SessionsPage: React.FC = () => {
 
   const locale = language === 'it' ? 'it-IT' : 'en-US';
 
+  const modeSessions = useMemo(() => sessions.filter(session => session.cubeMode === selectedCubeMode), [sessions, selectedCubeMode]);
+
   // Group sessions by month and week
-  const monthGroups = useMemo(() => groupSessionsByMonthAndWeek(sessions), [sessions]);
+  const monthGroups = useMemo(() => groupSessionsByMonthAndWeek(modeSessions), [modeSessions]);
 
   const startEditing = (sessionId: number, currentName: string): void => {
     setEditingSessionId(sessionId);
@@ -109,6 +112,9 @@ const SessionsPage: React.FC = () => {
   // Render month folders view
   const renderMonthsView = () => (
     <>
+      <div className="border-4 border-black bg-yellow-100 p-3 font-bold uppercase text-sm mb-4">
+        Modalità attiva: {getCubeModeMeta(selectedCubeMode).label}
+      </div>
       <div className="flex items-center justify-between gap-4 mb-6">
         <h2 className="text-3xl font-black uppercase">{t('allSessions')}</h2>
         <button

@@ -17,7 +17,7 @@ interface Navigator {
 }
 
 interface Window {
-  storage: {
+  storage?: {
     get: (key: string) => Promise<{ value: string } | null>;
     set: (key: string, value: string) => Promise<void>;
   };
