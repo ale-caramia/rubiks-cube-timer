@@ -4,16 +4,21 @@ import './index.css'
 import App from './App.tsx'
 import './firebaseClient.ts'
 import { registerSW } from 'virtual:pwa-register'
+import { detectLanguage, translate, type TranslationKeys } from './i18n/translations'
+
+const t = (key: TranslationKeys): string => {
+  return translate(detectLanguage(), key)
+}
 
 // Registra il service worker
 const updateSW = registerSW({
   onNeedRefresh() {
-    if (confirm('Nuova versione disponibile! Ricaricare?')) {
+    if (confirm(t('updateAvailableReload'))) {
       updateSW(true)
     }
   },
   onOfflineReady() {
-    console.log('App pronta per funzionare offline!')
+    console.log(t('offlineReady'))
   },
 })
 

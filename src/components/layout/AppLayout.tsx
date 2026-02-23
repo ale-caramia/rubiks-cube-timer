@@ -1,123 +1,175 @@
-import React from 'react';
-import { Outlet, useMatch, useNavigate, useParams } from 'react-router-dom';
-import { Languages, LogIn, LogOut } from 'lucide-react';
+import React, { useEffect, useMemo } from 'react';
+import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router-dom';
+import { Award, FolderOpen, Plus, Settings, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useSessions } from '../../state/SessionsContext';
 import { useAuth } from '../../state/AuthContext';
-import DesktopTabs from './DesktopTabs';
 import MobileNav from './MobileNav';
-import { getMonthKey, getWeekKey } from '../../utils/sessionGroups';
 import { getCubeModeMeta } from '../../utils/cubeModes';
+import { formatMonthName } from '../../utils/sessionGroups';
+import { useToast } from '../common/Toast';
 
 const AppLayout: React.FC = () => {
-  const { language, setLanguage, t } = useLanguage();
-  const { currentSession, sessions, migrationNeeded, migrateLegacyData, migrating, selectedCubeMode } = useSessions();
-  const { user, loading, firebaseConfigured, loginWithGoogle, logout } = useAuth();
+  const { t, language } = useLanguage();
+  const { currentSession, sessions, migrationNeeded, migrateLegacyData, migrating, selectedCubeMode, createSession } = useSessions();
+  const { user, loading, firebaseConfigured } = useAuth();
+  const { showToast } = useToast();
+  const location = useLocation();
   const navigate = useNavigate();
   const sessionDetailMatch = useMatch('/sessions/:sessionId');
   const { sessionId } = useParams();
   const detailSession = sessionId ? sessions.find(s => s.id === Number(sessionId)) : null;
-  const detailMonthKey = detailSession ? getMonthKey(new Date(detailSession.date)) : null;
-  const detailWeekKey = detailSession ? getWeekKey(new Date(detailSession.date)) : null;
+
+  const isSettingsPage = location.pathname === '/settings';
+  const isSessionsPage = location.pathname === '/sessions';
+  const isStatisticsPage = location.pathname === '/statistics';
+  const isTimerPage = location.pathname === '/';
+  const sessionsSearchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const isSessionsRootPage = isSessionsPage && !sessionsSearchParams.get('month') && !sessionsSearchParams.get('week');
+
+  const navItems = useMemo(() => ([
+    { path: '/', label: t('timer'), icon: Award },
+    { path: '/sessions', label: t('sessions'), icon: FolderOpen },
+    { path: '/statistics', label: t('statistics'), icon: TrendingUp },
+    { path: '/settings', label: t('settings'), icon: Settings }
+  ]), [t]);
+
+  const pageTitle = useMemo(() => {
+    if (sessionDetailMatch && detailSession) return detailSession.name;
+    if (isSessionsPage) {
+      const searchParams = new URLSearchParams(location.search);
+      const monthKey = searchParams.get('month');
+      const weekKey = searchParams.get('week');
+      if (weekKey) {
+        const weekMatch = weekKey.match(/W(\d{1,2})$/i);
+        if (weekMatch) {
+          const weekNumber = Number(weekMatch[1]);
+          if (Number.isFinite(weekNumber)) {
+            return `${t('week')} ${weekNumber}`;
+          }
+        }
+      }
+      if (monthKey) {
+        const [yearRaw, monthRaw] = monthKey.split('-');
+        const year = Number(yearRaw);
+        const month = Number(monthRaw);
+        if (Number.isFinite(year) && Number.isFinite(month) && month >= 1 && month <= 12) {
+          const locale = language === 'it' ? 'it-IT' : 'en-US';
+          return formatMonthName(year, month - 1, locale);
+        }
+      }
+    }
+    if (isTimerPage) return t('timer');
+    if (isSessionsPage) return t('sessions');
+    if (isStatisticsPage) return t('statistics');
+    if (isSettingsPage) return t('settingsTitle');
+    return t('appTitle');
+  }, [detailSession, isSettingsPage, isSessionsPage, isStatisticsPage, isTimerPage, language, location.search, sessionDetailMatch, t]);
+
+  const showAuthGate = firebaseConfigured && !loading && !user && !isSettingsPage;
+  const handleCreateSession = (): void => {
+    createSession();
+    showToast(t('sessionCreated'), 'success');
+  };
+
+  useEffect(() => {
+    document.title = pageTitle;
+  }, [pageTitle]);
 
   return (
-    <div className="min-h-screen bg-white pb-20 md:pb-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="border-b-4 md:border-4 border-black bg-yellow-300 p-4 md:p-6 mb-4 md:mb-6 md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:mx-4 md:mt-4">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <h1 className="text-2xl md:text-5xl font-black uppercase">{t('appTitle')}</h1>
-              {currentSession && (
-                <div className="text-xs md:text-sm font-bold uppercase mt-1">
-                  {t('currentSession')}: {currentSession.name} · {getCubeModeMeta(selectedCubeMode).shortLabel}
+    <div className="min-h-screen pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="sticky top-0 z-40 pt-2 md:pt-3">
+          <div className="mx-2 md:mx-4">
+            <div className="border-4 border-black bg-linear-to-r from-yellow-300 via-pink-300 to-cyan-300 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] neo-entrance">
+              <div className="px-2 py-2 md:px-3 md:py-2.5 flex items-center justify-between gap-2">
+                <div className="min-w-0 flex items-center gap-2">
+                  <img
+                    src="/icon.svg"
+                    alt={t('rubikLogoAlt')}
+                    className="w-12 h-12 md:w-14 md:h-14 shrink-0 block -translate-y-[1px]"
+                  />
+                  <div className="min-w-0 flex flex-col">
+                    <h1 className="text-base md:text-xl font-black uppercase truncate leading-none text-left">
+                      {pageTitle}
+                    </h1>
+                    {currentSession && (
+                      <p className="mt-1 text-[9px] md:text-[11px] font-bold uppercase truncate leading-none text-left opacity-85">
+                        {t('currentSession')}: {currentSession.name} · {getCubeModeMeta(selectedCubeMode).shortLabel}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              {firebaseConfigured && !loading && (
-                user ? (
-                  <button
-                    onClick={() => void logout()}
-                    className="px-3 py-2 md:px-4 md:py-3 min-h-11 border-4 border-black font-bold uppercase bg-red-300 hover:bg-red-400 flex items-center gap-2 text-sm"
-                  >
-                    <LogOut size={18} />
-                    <span className="hidden md:inline">Logout</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => void loginWithGoogle()}
-                    className="px-3 py-2 md:px-4 md:py-3 min-h-11 border-4 border-black font-bold uppercase bg-green-300 hover:bg-green-400 flex items-center gap-2 text-sm"
-                  >
-                    <LogIn size={18} />
-                    <span className="hidden md:inline">Google Login</span>
-                  </button>
-                )
-              )}
-              <button
-                onClick={() => setLanguage(language === 'it' ? 'en' : 'it')}
-                className="px-3 py-2 md:px-4 md:py-3 min-h-11 border-4 border-black font-bold uppercase bg-purple-300 hover:bg-purple-400 flex items-center gap-2 text-sm md:text-base"
-                title={language === 'it' ? 'Switch to English' : 'Passa all\'italiano'}
-              >
-                <Languages size={18} className="md:hidden" />
-                <Languages size={20} className="hidden md:block" />
-                <span className="hidden md:inline">{language.toUpperCase()}</span>
-              </button>
-            </div>
-          </div>
 
+                <div className="flex items-center gap-1 shrink-0">
+                  {isSessionsRootPage && (
+                    <button
+                      onClick={handleCreateSession}
+                      className="w-9 h-9 border-2 border-black bg-cyan-200 hover:bg-cyan-300 flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]"
+                      aria-label={t('newSession')}
+                      title={t('newSession')}
+                    >
+                      <Plus size={18} />
+                    </button>
+                  )}
+                  <div className="hidden md:flex items-center gap-1">
+                    {navItems.map(item => {
+                      const Icon = item.icon;
+                      const active = location.pathname === item.path;
+                      return (
+                        <button
+                          key={item.path}
+                          onClick={() => navigate(item.path)}
+                          className={`w-9 h-9 border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] ${
+                            active ? 'bg-black text-cyan-200' : 'bg-white hover:bg-gray-100'
+                          }`}
+                          aria-label={item.label}
+                          title={item.label}
+                        >
+                          <Icon size={16} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {isSessionsRootPage ? <div className="w-2 h-9 md:hidden" /> : <div className="w-9 h-9 md:hidden" />}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div className="px-2 md:px-4 mt-3 md:mt-4">
           {!firebaseConfigured && (
-            <div className="mt-3 border-4 border-black bg-red-200 p-3 text-sm font-bold">
-              Firebase non configurato: imposta le variabili VITE_FIREBASE_* per usare login e salvataggio cloud.
+            <div className="mb-3 border-4 border-black bg-red-200 p-3 text-sm font-bold neo-wiggle">
+              {t('firebaseNotConfigured')}
             </div>
           )}
 
           {migrationNeeded && user && (
-            <div className="mt-3 border-4 border-black bg-cyan-200 p-3 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            <div className="mb-3 border-4 border-black bg-lime-200 p-3 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
               <p className="text-sm font-bold">
-                Dati locali trovati. Migra le tue sessioni su Firebase per collegarle al tuo account.
+                {t('migrationPrompt')}
               </p>
               <button
                 onClick={() => void migrateLegacyData()}
                 disabled={migrating}
-                className="px-4 py-2 border-4 border-black font-bold uppercase bg-white hover:bg-gray-100 disabled:opacity-60"
+                className="px-4 py-2 border-4 border-black font-bold uppercase bg-white hover:bg-gray-100 disabled:opacity-60 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]"
               >
-                {migrating ? 'Migrazione...' : 'Migra ora'}
+                {migrating ? t('migrationInProgress') : t('migrateNow')}
               </button>
             </div>
           )}
 
-          {sessionDetailMatch && detailSession && (
-            <div className="mt-4 flex items-center gap-2 text-sm font-bold">
+          {showAuthGate ? (
+            <div className="border-4 border-black bg-linear-to-br from-white to-yellow-100 p-6 shadow-[10px_10px_0px_0px_rgba(17,17,17,1)] neo-entrance">
+              <h2 className="text-2xl font-black uppercase mb-2">{t('signInToContinue')}</h2>
+              <p className="font-bold mb-4">{t('signInHint')}</p>
               <button
-                onClick={() => {
-                  if (detailMonthKey && detailWeekKey) {
-                    navigate(`/sessions?month=${detailMonthKey}&week=${detailWeekKey}`);
-                  } else {
-                    navigate('/sessions');
-                  }
-                }}
-                className="hover:underline"
+                onClick={() => navigate('/settings')}
+                className="px-4 py-3 border-4 border-black font-bold uppercase bg-cyan-300 hover:bg-cyan-400 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]"
               >
-                {t('sessions')}
-              </button>
-              <span>/</span>
-              <span className="text-gray-700">{detailSession.name}</span>
-            </div>
-          )}
-        </div>
-
-        {!sessionDetailMatch && <DesktopTabs />}
-
-        <div className="px-4 md:px-4">
-          {firebaseConfigured && !loading && !user ? (
-            <div className="border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <h2 className="text-2xl font-black uppercase mb-2">Accedi per continuare</h2>
-              <p className="font-bold mb-4">I dati ora vengono salvati su Firebase e associati al tuo account Google.</p>
-              <button
-                onClick={() => void loginWithGoogle()}
-                className="px-4 py-3 border-4 border-black font-bold uppercase bg-green-300 hover:bg-green-400"
-              >
-                Login con Google
+                {t('openSettings')}
               </button>
             </div>
           ) : (

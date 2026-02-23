@@ -32,9 +32,9 @@ const ToastItem: React.FC<{ toast: ToastMessage; onClose: (id: number) => void }
   }, [toast.id, onClose]);
 
   const bgColor = {
-    success: 'bg-green-300',
-    error: 'bg-red-300',
-    info: 'bg-blue-300'
+    success: 'bg-linear-to-r from-green-300 to-lime-300',
+    error: 'bg-linear-to-r from-red-300 to-rose-300',
+    info: 'bg-linear-to-r from-cyan-300 to-blue-300'
   }[toast.type];
 
   const Icon = {
@@ -45,7 +45,7 @@ const ToastItem: React.FC<{ toast: ToastMessage; onClose: (id: number) => void }
 
   return (
     <div
-      className={`${bgColor} border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3 animate-slide-in`}
+      className={`${bgColor} border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] flex items-center gap-3 animate-slide-in`}
     >
       <Icon size={20} className="flex-shrink-0" />
       <span className="font-bold flex-1">{toast.message}</span>
@@ -74,7 +74,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50 space-y-2">
+      <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 space-y-2">
         {toasts.map(toast => (
           <ToastItem key={toast.id} toast={toast} onClose={closeToast} />
         ))}

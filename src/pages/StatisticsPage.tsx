@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Award, TrendingDown, TrendingUp } from 'lucide-react';
+import { Award, Hash, TrendingDown, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSessions } from '../state/SessionsContext';
 import { getCubeModeMeta } from '../utils/cubeModes';
@@ -53,38 +53,46 @@ const StatisticsPage: React.FC = () => {
   const maxDistribution = Math.max(...modeDistribution.map(bucket => bucket.value), 1);
 
   return (
-    <div className="space-y-4 md:space-y-6">
-      <div className="border-4 border-black bg-yellow-100 p-3 font-bold uppercase text-sm">
-        Modalità attiva: {getCubeModeMeta(selectedCubeMode).label}
-      </div>
-
+    <div className="space-y-4 md:space-y-6 neo-entrance">
       {globalStats && (
-        <div className="border-4 border-black bg-linear-to-br from-orange-300 to-orange-200 p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="text-2xl md:text-3xl font-black uppercase mb-6">{t('globalStats')}</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            <div className="bg-white border-4 border-black p-4 md:p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <div className="text-xs md:text-sm font-bold uppercase mb-2 text-gray-600">{t('total')}</div>
-              <div className="text-3xl md:text-4xl font-black">{globalStats.count}</div>
+        <section className="pt-2 md:pt-3">
+          <h2 className="text-2xl md:text-3xl font-black uppercase mb-3 md:mb-4">{t('globalStats')}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="border-4 border-black bg-linear-to-br from-amber-200 to-yellow-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <div className="flex items-center gap-2 mb-2">
+                <Hash size={24} />
+                <span className="font-bold uppercase text-sm">{t('total')}</span>
+              </div>
+              <div className="text-3xl font-black">{globalStats.count}</div>
             </div>
-            <div className="bg-white border-4 border-black p-4 md:p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <div className="text-xs md:text-sm font-bold uppercase mb-2 text-gray-600">{t('best')}</div>
-              <div className="text-2xl md:text-3xl font-black font-mono">{formatTime(globalStats.best)}</div>
+            <div className="border-4 border-black bg-linear-to-br from-green-200 to-lime-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <div className="flex items-center gap-2 mb-2">
+                <Award size={24} />
+                <span className="font-bold uppercase text-sm">{t('best')}</span>
+              </div>
+              <div className="text-3xl font-black font-mono">{formatTime(globalStats.best)}</div>
             </div>
-            <div className="bg-white border-4 border-black p-4 md:p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <div className="text-xs md:text-sm font-bold uppercase mb-2 text-gray-600">{t('average')}</div>
-              <div className="text-2xl md:text-3xl font-black font-mono">{formatTime(globalStats.average)}</div>
+            <div className="border-4 border-black bg-linear-to-br from-blue-200 to-cyan-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp size={24} />
+                <span className="font-bold uppercase text-sm">{t('average')}</span>
+              </div>
+              <div className="text-3xl font-black font-mono">{formatTime(globalStats.average)}</div>
             </div>
-            <div className="bg-white border-4 border-black p-4 md:p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <div className="text-xs md:text-sm font-bold uppercase mb-2 text-gray-600">{t('worst')}</div>
-              <div className="text-2xl md:text-3xl font-black font-mono">{formatTime(globalStats.worst)}</div>
+            <div className="border-4 border-black bg-linear-to-br from-rose-200 to-red-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingDown size={24} />
+                <span className="font-bold uppercase text-sm">{t('worst')}</span>
+              </div>
+              <div className="text-3xl font-black font-mono">{formatTime(globalStats.worst)}</div>
             </div>
           </div>
-        </div>
+        </section>
       )}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
-        <div className="border-4 border-black bg-cyan-200 p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-          <h3 className="text-lg md:text-xl font-black uppercase mb-3">Media ultimi 7 giorni</h3>
+        <div className="border-4 border-black bg-linear-to-br from-cyan-200 to-blue-200 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+          <h3 className="text-lg md:text-xl font-black uppercase mb-3">{t('averageLast7Days')}</h3>
           <div className="h-48 flex items-end gap-2">
             {trendByDay.map(bucket => {
               const height = bucket.value === 0 ? 0 : Math.max(8, Math.round((bucket.value / maxTrend) * 100));
@@ -92,7 +100,7 @@ const StatisticsPage: React.FC = () => {
                 <div key={bucket.label} className="flex-1 flex flex-col items-center gap-1">
                   <div className="text-[10px] md:text-xs font-black font-mono min-h-4">{bucket.value ? formatTime(bucket.value) : '-'}</div>
                   <div className="h-28 w-full border-2 border-black bg-white flex items-end">
-                    <div className="w-full bg-cyan-500 border-t-2 border-black" style={{ height: `${height}%` }} />
+                    <div className="w-full bg-linear-to-t from-cyan-500 to-blue-500 border-t-2 border-black transition-all duration-300" style={{ height: `${height}%` }} />
                   </div>
                   <div className="text-[10px] md:text-xs font-bold uppercase">{bucket.label}</div>
                 </div>
@@ -101,11 +109,11 @@ const StatisticsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-4 border-black bg-lime-200 p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-          <h3 className="text-lg md:text-xl font-black uppercase mb-3">Solve per modalità</h3>
+        <div className="border-4 border-black bg-linear-to-br from-lime-200 to-green-200 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+          <h3 className="text-lg md:text-xl font-black uppercase mb-3">{t('solvesByMode')}</h3>
           <div className="space-y-2">
             {modeDistribution.length === 0 ? (
-              <div className="text-sm font-bold">Nessun dato disponibile.</div>
+              <div className="text-sm font-bold">{t('noData')}</div>
             ) : modeDistribution.map(bucket => (
               <div key={bucket.label}>
                 <div className="flex justify-between text-xs font-bold uppercase mb-1">
@@ -114,7 +122,7 @@ const StatisticsPage: React.FC = () => {
                 </div>
                 <div className="h-4 border-2 border-black bg-white">
                   <div
-                    className="h-full bg-lime-500 border-r-2 border-black"
+                    className="h-full bg-linear-to-r from-lime-500 to-green-500 border-r-2 border-black transition-all duration-300"
                     style={{ width: `${Math.max(4, Math.round((bucket.value / maxDistribution) * 100))}%` }}
                   />
                 </div>
@@ -130,7 +138,7 @@ const StatisticsPage: React.FC = () => {
           {(() => {
             const stats = getDailyStats(modeSessions);
             return (
-              <div className="border-4 border-black bg-linear-to-br from-blue-300 to-blue-200 p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <div className="border-4 border-black bg-linear-to-br from-blue-300 to-cyan-200 p-6 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl md:text-2xl font-black uppercase">{t('today')}</h3>
                   <Award className="opacity-50" size={32} />
@@ -166,7 +174,7 @@ const StatisticsPage: React.FC = () => {
           {(() => {
             const stats = getWeeklyStats(modeSessions);
             return (
-              <div className="border-4 border-black bg-linear-to-br from-purple-300 to-purple-200 p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <div className="border-4 border-black bg-linear-to-br from-fuchsia-300 to-purple-200 p-6 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl md:text-2xl font-black uppercase">{t('thisWeek')}</h3>
                   <TrendingUp className="opacity-50" size={32} />
@@ -202,7 +210,7 @@ const StatisticsPage: React.FC = () => {
           {(() => {
             const stats = getMonthlyStats(modeSessions);
             return (
-              <div className="border-4 border-black bg-linear-to-br from-pink-300 to-pink-200 p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <div className="border-4 border-black bg-linear-to-br from-pink-300 to-rose-200 p-6 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl md:text-2xl font-black uppercase">{t('thisMonth')}</h3>
                   <TrendingDown className="opacity-50" size={32} />
@@ -238,7 +246,7 @@ const StatisticsPage: React.FC = () => {
       </div>
 
       {!globalStats && (
-        <div className="border-4 border-black bg-gray-100 p-8 text-center">
+        <div className="border-4 border-black bg-white p-8 text-center shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
           <p className="text-xl font-bold uppercase text-gray-600">{t('noData')}</p>
         </div>
       )}

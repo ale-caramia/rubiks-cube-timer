@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import type { Session } from '../../types/timer';
 import { ArrowRight } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface MoveTimeDialogProps {
   isOpen: boolean;
@@ -54,6 +55,9 @@ const MoveTimeDialog: React.FC<MoveTimeDialogProps> = ({
   cancelLabel,
   noSessionsMessage
 }) => {
+  const { language, t } = useLanguage();
+  const locale = language === 'it' ? 'it-IT' : 'en-US';
+
   const availableSessions = useMemo(() => {
     const fromSession = sessions.find(s => s.id === fromSessionId);
     if (!fromSession) return [];
@@ -78,18 +82,18 @@ const MoveTimeDialog: React.FC<MoveTimeDialogProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+        className="w-full max-w-md border-4 border-black bg-linear-to-br from-white to-cyan-100 p-6 shadow-[10px_10px_0px_0px_rgba(17,17,17,1)] neo-entrance"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-xl font-black uppercase mb-2">{title}</h3>
         <p className="text-sm font-bold mb-6 text-gray-700">{subtitle}</p>
 
         {availableSessions.length === 0 ? (
-          <div className="border-4 border-black bg-yellow-200 p-4 mb-6">
+          <div className="border-4 border-black bg-yellow-200 p-4 mb-6 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]">
             <p className="text-sm font-bold">{noSessionsMessage}</p>
           </div>
         ) : (
@@ -103,13 +107,13 @@ const MoveTimeDialog: React.FC<MoveTimeDialogProps> = ({
                     onMove(session.id);
                     onClose();
                   }}
-                  className="w-full border-4 border-black bg-cyan-200 hover:bg-cyan-300 p-4 text-left transition-all hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1"
+                  className="w-full border-4 border-black bg-linear-to-r from-cyan-200 to-blue-200 hover:from-cyan-300 hover:to-blue-300 p-4 text-left transition-all hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] active:translate-x-1 active:translate-y-1"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex-1">
                       <div className="font-black uppercase text-lg">{session.name}</div>
                       <div className="text-xs font-bold text-gray-700 mt-1">
-                        {sessionDate.toLocaleDateString()} - {session.times.length} solve{session.times.length !== 1 ? 's' : ''}
+                        {sessionDate.toLocaleDateString(locale)} - {session.times.length} {session.times.length === 1 ? t('solve') : t('solves')}
                       </div>
                     </div>
                     <ArrowRight size={24} className="shrink-0" />
@@ -123,7 +127,7 @@ const MoveTimeDialog: React.FC<MoveTimeDialogProps> = ({
         <div className="flex items-center justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-3 min-h-11 border-4 border-black font-bold uppercase bg-gray-200 hover:bg-gray-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
+            className="px-6 py-3 min-h-11 border-4 border-black font-bold uppercase bg-white hover:bg-gray-100 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
           >
             {cancelLabel}
           </button>

@@ -1,1 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap');
 @import "tailwindcss";
+
+:root {
+  --neo-ink: #111111;
+  --neo-paper: #fffef8;
+  --neo-bg-a: #ffe256;
+  --neo-bg-b: #7ee7ff;
+  --neo-bg-c: #ff8db1;
+  --neo-accent: #9bff4f;
+  --neo-shadow: 10px 10px 0 0 var(--neo-ink);
+  --neo-shadow-sm: 6px 6px 0 0 var(--neo-ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--neo-ink);
+  font-family: 'Manrope', sans-serif;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(255, 226, 86, 0.7), transparent 28%),
+    radial-gradient(circle at 92% 5%, rgba(126, 231, 255, 0.72), transparent 32%),
+    radial-gradient(circle at 87% 84%, rgba(255, 141, 177, 0.7), transparent 30%),
+    linear-gradient(145deg, #fffef8 0%, #fff9d9 36%, #f0f9ff 100%);
+  background-attachment: fixed;
+}
+
+#root {
+  position: relative;
+  isolation: isolate;
+}
+
+#root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.38;
+  z-index: -1;
+  background-image:
+    linear-gradient(var(--neo-ink) 1.2px, transparent 1.2px),
+    linear-gradient(90deg, var(--neo-ink) 1.2px, transparent 1.2px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Sora', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+button,
+a,
+input {
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+button:active,
+a:active {
+  transform: translate(2px, 2px);
+}
+
+.neo-panel {
+  border: 4px solid var(--neo-ink);
+  box-shadow: var(--neo-shadow);
+  background: var(--neo-paper);
+}
+
+.neo-panel-soft {
+  border: 4px solid var(--neo-ink);
+  box-shadow: var(--neo-shadow-sm);
+}
+
+.neo-entrance {
+  animation: neo-rise 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.neo-wiggle {
+  animation: neo-wiggle 300ms ease-out;
+}
+
+.animate-slide-in {
+  animation: neo-toast 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes neo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes neo-toast {
+  from {
+    transform: translateY(18px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes neo-wiggle {
+  0% { transform: rotate(0deg); }
+  33% { transform: rotate(-1.2deg); }
+  66% { transform: rotate(1.2deg); }
+  100% { transform: rotate(0deg); }
+}

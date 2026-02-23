@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, translations, TranslationKeys } from './translations';
+import { Language, TranslationKeys, detectLanguage, translate } from './translations';
 
 interface LanguageContextType {
   language: Language;
@@ -10,20 +10,11 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>(() => {
-    // Load saved language or detect browser language
-    const saved = localStorage.getItem('language') as Language;
-    if (saved && (saved === 'it' || saved === 'en')) {
-      return saved;
-    }
-    // Detect browser language
-    const browserLang = navigator.language.toLowerCase();
-    return browserLang.startsWith('it') ? 'it' : 'en';
-  });
+  const [language, setLanguageState] = useState<Language>(() => detectLanguage());
 
   useEffect(() => {
-    // Save language preference
     localStorage.setItem('language', language);
+    document.documentElement.lang = language;
   }, [language]);
 
   const setLanguage = (lang: Language) => {
@@ -31,7 +22,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const t = (key: TranslationKeys): string => {
-    return translations[language][key] || key;
+    return translate(language, key);
   };
 
   return (

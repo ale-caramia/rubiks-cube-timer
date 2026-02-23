@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Trash2, MoveRight } from 'lucide-react';
+import { Trash2, MoveRight, ChevronRight, CalendarClock } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSessions } from '../state/SessionsContext';
@@ -57,27 +57,49 @@ const SessionDetailPage: React.FC = () => {
 
   return (
     <>
-      <div className="space-y-4 md:space-y-6">
-        <div className="border-4 border-black bg-yellow-300 p-4 md:p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <div className="flex items-start gap-3">
+      <div className="space-y-4 md:space-y-6 neo-entrance">
+        <div className="border-4 border-black bg-white/90 px-3 py-2 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+          <div className="flex items-center gap-2 flex-wrap text-xs md:text-sm font-bold uppercase">
+            <button
+              onClick={() => navigate('/sessions')}
+              className="hover:underline"
+            >
+              {t('allSessions')}
+            </button>
+            <ChevronRight size={14} />
+            <button
+              onClick={() => navigate(`/sessions?month=${sessionMonthKey}`)}
+              className="hover:underline"
+            >
+              {new Date(session.date).toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US', { month: 'long', year: 'numeric' })}
+            </button>
+            <ChevronRight size={14} />
             <button
               onClick={() => navigate(`/sessions?month=${sessionMonthKey}&week=${sessionWeekKey}`)}
-              className="p-3 min-w-11 min-h-11 border-4 border-black bg-white hover:bg-gray-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center"
-              aria-label={t('back')}
+              className="hover:underline"
             >
-              <ArrowLeft size={20} />
+              {t('week')} {getWeekKey(new Date(session.date)).split('W')[1]}
             </button>
-            <div>
-              <h2 className="text-2xl md:text-3xl font-black uppercase">{session.name}</h2>
-              <div className="text-xs md:text-sm font-bold mt-2">
-                {new Date(session.date).toLocaleString(language === 'it' ? 'it-IT' : 'en-US')}
-              </div>
-            </div>
+            <ChevronRight size={14} />
+            <span className="opacity-70">{session.name}</span>
           </div>
-          {session.id !== currentSessionId && (
+        </div>
+
+        <div className="flex flex-wrap md:flex-nowrap items-stretch justify-between gap-3">
+          <div className="inline-flex h-11 items-center gap-2 border-2 border-black bg-white/90 px-3 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]">
+            <CalendarClock size={16} className="shrink-0" />
+            <span className="text-[11px] md:text-sm font-bold leading-none">
+              {new Date(session.date).toLocaleString(language === 'it' ? 'it-IT' : 'en-US')}
+            </span>
+          </div>
+          {session.id === currentSessionId ? (
+            <span className="ml-auto inline-flex h-11 items-center px-3 border-2 border-black bg-black text-cyan-200 text-[10px] md:text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]">
+              {t('currentSession')}
+            </span>
+          ) : (
             <button
               onClick={() => setCurrentSessionId(session.id)}
-              className="mt-4 px-6 py-3 border-4 border-black font-bold uppercase bg-green-300 hover:bg-green-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-sm"
+              className="ml-auto h-11 px-5 border-4 border-black font-bold uppercase bg-green-300 hover:bg-green-400 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] text-sm"
             >
               {t('setAsCurrent')}
             </button>
@@ -85,98 +107,129 @@ const SessionDetailPage: React.FC = () => {
         </div>
 
         {stats && (
-          <div className="border-4 border-black bg-blue-300 p-4 md:p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-            <h3 className="text-2xl font-black uppercase mb-4">{t('sessionStatistics')}</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <div className="font-bold uppercase mb-1">{t('solves')}</div>
-                <div className="text-2xl font-black">{stats.count}</div>
-              </div>
-              <div>
-                <div className="font-bold uppercase mb-1">{t('best')}</div>
-                <div className="text-2xl font-black font-mono">{formatTime(stats.best)}</div>
-              </div>
-              <div>
-                <div className="font-bold uppercase mb-1">{t('average')}</div>
-                <div className="text-2xl font-black font-mono">{formatTime(stats.average)}</div>
-              </div>
-              <div>
-                <div className="font-bold uppercase mb-1">{t('worst')}</div>
-                <div className="text-2xl font-black font-mono">{formatTime(stats.worst)}</div>
+          <div className="border-4 border-black bg-linear-to-br from-blue-300 to-cyan-200 p-3 md:p-5 shadow-[10px_10px_0px_0px_rgba(17,17,17,1)]">
+            <h3 className="text-xl md:text-2xl font-black uppercase">{t('sessionStatistics')}</h3>
+
+            <div className="-mx-1 mt-3 overflow-x-auto pb-1">
+              <div className="flex min-w-max gap-2 px-1">
+                <div className="w-28 md:w-36 bg-white/85 p-2 md:p-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
+                  <div className="font-bold uppercase text-[10px] md:text-xs">{t('solves')}</div>
+                  <div className="text-lg md:text-2xl font-black">{stats.count}</div>
+                </div>
+                <div className="w-32 md:w-44 bg-white/85 p-2 md:p-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
+                  <div className="font-bold uppercase text-[10px] md:text-xs">{t('best')}</div>
+                  <div className="text-lg md:text-2xl font-black font-mono">{formatTime(stats.best)}</div>
+                </div>
+                <div className="w-32 md:w-44 bg-white/85 p-2 md:p-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
+                  <div className="font-bold uppercase text-[10px] md:text-xs">{t('average')}</div>
+                  <div className="text-lg md:text-2xl font-black font-mono">{formatTime(stats.average)}</div>
+                </div>
+                <div className="w-32 md:w-44 bg-white/85 p-2 md:p-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
+                  <div className="font-bold uppercase text-[10px] md:text-xs">{t('worst')}</div>
+                  <div className="text-lg md:text-2xl font-black font-mono">{formatTime(stats.worst)}</div>
+                </div>
               </div>
             </div>
 
             {(ao5 || ao12) && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                {ao5 && (
-                  <div>
-                    <div className="font-bold uppercase mb-1">{t('currentAo5')}</div>
-                    <div className="text-xl font-black font-mono">{formatTime(ao5)}</div>
-                  </div>
-                )}
-                {ao12 && (
-                  <div>
-                    <div className="font-bold uppercase mb-1">{t('currentAo12')}</div>
-                    <div className="text-xl font-black font-mono">{formatTime(ao12)}</div>
-                  </div>
-                )}
-              </div>
+              <details className="mt-3 border-2 border-black bg-white/75 px-3 py-2">
+                <summary className="cursor-pointer font-bold uppercase text-xs md:text-sm">
+                  {t('aoDetails')}
+                </summary>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {ao5 && (
+                    <div className="bg-white p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
+                      <div className="font-bold uppercase text-[10px] md:text-xs">{t('currentAo5')}</div>
+                      <div className="text-base md:text-lg font-black font-mono">{formatTime(ao5)}</div>
+                    </div>
+                  )}
+                  {ao12 && (
+                    <div className="bg-white p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
+                      <div className="font-bold uppercase text-[10px] md:text-xs">{t('currentAo12')}</div>
+                      <div className="text-base md:text-lg font-black font-mono">{formatTime(ao12)}</div>
+                    </div>
+                  )}
+                </div>
+              </details>
             )}
           </div>
         )}
 
-        <div className="border-4 border-black bg-purple-300 p-4 md:p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h3 className="text-2xl font-black uppercase mb-4">{t('allSolves')}</h3>
-          <div className="space-y-3">
-            {[...session.times].reverse().map((entry, idx) => {
-              const originalIdx = session.times.length - 1 - idx;
-              const date = new Date(entry.timestamp);
-              return (
-                <div key={originalIdx} className="bg-white border-4 border-black p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="font-mono text-2xl font-black mb-1">
-                        {formatTime(entry.time)}
-                      </div>
-                      <div className="text-sm font-bold">
-                        {date.toLocaleString(language === 'it' ? 'it-IT' : 'en-US')}
-                      </div>
-                      {entry.scramble && (
-                        <div className="text-xs font-mono mt-2 text-gray-700 break-all">
-                          {entry.scramble}
+        <div className={stats ? 'mt-8 md:mt-10' : ''}>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <h3 className="text-2xl font-black uppercase">{t('allSolves')}</h3>
+            <div className="border-2 border-black bg-white/90 px-3 py-1 text-xs md:text-sm font-black uppercase shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]">
+              {session.times.length} {t('solves')}
+            </div>
+          </div>
+
+          {session.times.length === 0 ? (
+            <div className="border-4 border-black bg-white p-5 text-center font-bold shadow-[5px_5px_0px_0px_rgba(17,17,17,1)]">
+              {t('noData')}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {[...session.times].reverse().map((entry, idx) => {
+                const originalIdx = session.times.length - 1 - idx;
+                const date = new Date(entry.timestamp);
+                return (
+                  <div key={originalIdx} className="bg-white border-4 border-black shadow-[5px_5px_0px_0px_rgba(17,17,17,1)] overflow-hidden">
+                    <div className="grid md:grid-cols-[1fr_auto]">
+                      <div className="p-4">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <span className="px-2 py-1 border-2 border-black bg-yellow-100 text-[10px] md:text-xs font-black uppercase leading-none">
+                            #{session.times.length - idx}
+                          </span>
+                          <span className="text-xs md:text-sm font-bold">
+                            {date.toLocaleString(language === 'it' ? 'it-IT' : 'en-US')}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2 shrink-0">
-                      <button
-                        onClick={() => {
-                          setSelectedTimeIndex(originalIdx);
-                          setMoveDialogOpen(true);
-                        }}
-                        className="p-3 border-4 border-black bg-cyan-300 hover:bg-cyan-400 min-w-11 min-h-11 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
-                        title={t('moveTime')}
-                      >
-                        <MoveRight size={20} />
-                      </button>
-                      <button
-                        onClick={() => {
-                          confirmDialog.open(
-                            t('confirmDeleteTitle'),
-                            t('confirmDeleteTime'),
-                            () => deleteTime(session.id, originalIdx)
-                          );
-                        }}
-                        className="p-3 border-4 border-black bg-red-300 hover:bg-red-400 min-w-11 min-h-11 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
-                        title={t('delete')}
-                      >
-                        <Trash2 size={20} />
-                      </button>
+
+                        <div className="font-mono text-2xl md:text-3xl font-black mb-2">
+                          {formatTime(entry.time)}
+                        </div>
+
+                        {entry.scramble && (
+                          <div className="mt-3 border-2 border-black bg-zinc-50 p-2">
+                            <div className="text-[10px] md:text-xs font-bold uppercase mb-1">{t('scramble')}</div>
+                            <div className="text-xs font-mono text-gray-700 break-all">
+                              {entry.scramble}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="p-3 border-t-4 md:border-t-0 md:border-l-4 border-black bg-cyan-100/70 flex md:flex-col gap-2 justify-end">
+                        <button
+                          onClick={() => {
+                            setSelectedTimeIndex(originalIdx);
+                            setMoveDialogOpen(true);
+                          }}
+                          className="p-3 border-4 border-black bg-cyan-300 hover:bg-cyan-400 min-w-11 min-h-11 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
+                          title={t('moveTime')}
+                        >
+                          <MoveRight size={20} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            confirmDialog.open(
+                              t('confirmDeleteTitle'),
+                              t('confirmDeleteTime'),
+                              () => deleteTime(session.id, originalIdx)
+                            );
+                          }}
+                          className="p-3 border-4 border-black bg-red-300 hover:bg-red-400 min-w-11 min-h-11 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
+                          title={t('delete')}
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 

@@ -8,7 +8,12 @@ export const translations = {
     stats: 'Stats',
     sessions: 'Sessioni',
     statistics: 'Statistiche',
+    settings: 'Impostazioni',
+    settingsTitle: 'Impostazioni',
     newSession: 'Nuova Sessione',
+    menuMore: 'Altro',
+    loginGoogle: 'Login con Google',
+    logout: 'Logout',
 
     // Timer states
     holdToReady: 'Tieni premuto per prepararti',
@@ -39,9 +44,11 @@ export const translations = {
     // Session
     session: 'Sessione',
     currentSession: 'Sessione Corrente',
+    solve: 'Solve',
     solves: 'Solve',
     total: 'Totale',
     sessionStatistics: 'Statistiche Sessione',
+    aoDetails: 'Ao5 / Ao12',
 
     // Actions
     back: 'Indietro',
@@ -65,6 +72,8 @@ export const translations = {
     thisWeek: 'Questa Settimana',
     thisMonth: 'Questo Mese',
     noData: 'Nessun dato',
+    averageLast7Days: 'Media ultimi 7 giorni',
+    solvesByMode: 'Solve per modalità',
 
     // Session folders
     monthlyFolders: 'Cartelle Mensili',
@@ -82,6 +91,29 @@ export const translations = {
     sessionCreated: 'Nuova sessione creata',
     sessionDeleted: 'Sessione eliminata',
     sessionRenamed: 'Sessione rinominata',
+
+    // Settings
+    settingsLanguage: 'Lingua',
+    settingsLanguageDescription: "Scegli la lingua dell'interfaccia.",
+    settingsAccount: 'Account',
+    languageItalian: 'Italiano',
+    languageEnglish: 'English',
+    accountLoggedInAs: 'Connesso come:',
+    accountNotLoggedIn: 'Non sei connesso.',
+    cubeCategory: 'Categoria cubo',
+    mode: 'Modalità',
+    firebaseNotConfigured: 'Firebase non configurato: imposta le variabili VITE_FIREBASE_* per usare login e salvataggio cloud.',
+    migrationPrompt: 'Dati locali trovati. Migra le tue sessioni su Firebase per collegarle al tuo account.',
+    migrationInProgress: 'Migrazione...',
+    migrateNow: 'Migra ora',
+    signInToContinue: 'Accedi per continuare',
+    signInHint: 'Per continuare vai in Impostazioni e accedi con Google.',
+    openSettings: 'Apri Impostazioni',
+    rubikLogoAlt: 'Logo Rubik',
+    loadingAnimationAlt: 'Animazione di caricamento Rubik',
+    loadingMessage: "Caricamento Rubik's Timer...",
+    updateAvailableReload: 'Nuova versione disponibile! Ricaricare?',
+    offlineReady: 'App pronta per funzionare offline!'
   },
   en: {
     // Header
@@ -90,7 +122,12 @@ export const translations = {
     stats: 'Stats',
     sessions: 'Sessions',
     statistics: 'Statistics',
+    settings: 'Settings',
+    settingsTitle: 'Settings',
     newSession: 'New Session',
+    menuMore: 'More',
+    loginGoogle: 'Login with Google',
+    logout: 'Logout',
 
     // Timer states
     holdToReady: 'Hold to get ready',
@@ -121,9 +158,11 @@ export const translations = {
     // Session
     session: 'Session',
     currentSession: 'Current Session',
+    solve: 'Solve',
     solves: 'Solves',
     total: 'Total',
     sessionStatistics: 'Session Statistics',
+    aoDetails: 'Ao5 / Ao12',
 
     // Actions
     back: 'Back',
@@ -147,6 +186,8 @@ export const translations = {
     thisWeek: 'This Week',
     thisMonth: 'This Month',
     noData: 'No data',
+    averageLast7Days: 'Average last 7 days',
+    solvesByMode: 'Solves by mode',
 
     // Session folders
     monthlyFolders: 'Monthly Folders',
@@ -164,7 +205,48 @@ export const translations = {
     sessionCreated: 'New session created',
     sessionDeleted: 'Session deleted',
     sessionRenamed: 'Session renamed',
+
+    // Settings
+    settingsLanguage: 'Language',
+    settingsLanguageDescription: 'Choose the interface language.',
+    settingsAccount: 'Account',
+    languageItalian: 'Italian',
+    languageEnglish: 'English',
+    accountLoggedInAs: 'Logged in as:',
+    accountNotLoggedIn: 'You are not logged in.',
+    cubeCategory: 'Cube category',
+    mode: 'Mode',
+    firebaseNotConfigured: 'Firebase is not configured: set VITE_FIREBASE_* variables to enable login and cloud sync.',
+    migrationPrompt: 'Local data found. Migrate your sessions to Firebase to link them to your account.',
+    migrationInProgress: 'Migrating...',
+    migrateNow: 'Migrate now',
+    signInToContinue: 'Sign in to continue',
+    signInHint: 'To continue, go to Settings and sign in with Google.',
+    openSettings: 'Open Settings',
+    rubikLogoAlt: 'Rubik logo',
+    loadingAnimationAlt: 'Rubik loading animation',
+    loadingMessage: "Loading Rubik's Timer...",
+    updateAvailableReload: 'New version available! Reload now?',
+    offlineReady: 'App is ready to work offline!'
   }
 };
 
 export type TranslationKeys = keyof typeof translations.it;
+
+export const detectLanguage = (): Language => {
+  if (typeof window === 'undefined') {
+    return 'en';
+  }
+
+  const saved = window.localStorage.getItem('language') as Language | null;
+  if (saved === 'it' || saved === 'en') {
+    return saved;
+  }
+
+  const browserLang = window.navigator.language.toLowerCase();
+  return browserLang.startsWith('it') ? 'it' : 'en';
+};
+
+export const translate = (language: Language, key: TranslationKeys): string => {
+  return translations[language][key] || key;
+};

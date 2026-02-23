@@ -1,0 +1,367 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <!-- 
+    Versione "spettacolare" basata sulla tua geometria:
+    - Mantiene tile isometrici e animazione a step dei colori
+    - Aggiunge glow, flash, spark, ombre e camera motion
+  -->
+  <defs>
+    <!-- Tile Faccia Superiore (Top) -->
+    <polygon id="top-tile" points="0,0 24,12 0,24 -24,12" />
+    
+    <!-- Tile Faccia Sinistra (Left) -->
+    <polygon id="left-tile" points="0,0 24,12 24,36 0,24" />
+    
+    <!-- Tile Faccia Destra (Right) -->
+    <polygon id="right-tile" points="0,0 24,-12 24,12 0,24" />
+
+    <!-- Glow solve -->
+    <radialGradient id="solve-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+      <stop offset="35%" stop-color="#9fd3ff" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#9fd3ff" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Highlight facce -->
+    <linearGradient id="top-shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.14"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="left-shade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.24"/>
+    </linearGradient>
+
+    <linearGradient id="right-shade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.20"/>
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="soft-shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
+    </filter>
+
+    <filter id="cube-glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 0.65 0" />
+    </filter>
+  </defs>
+
+  <style>
+    :root {
+      --w: #FFFFFF;
+      --g: #009E60;
+      --r: #C41E3A;
+      --b: #0051BA;
+      --y: #FFD500;
+      --o: #FF5800;
+      --bg: #1A1A1A;
+      --tile-stroke: rgba(0,0,0,0.22);
+    }
+
+    .tile {
+      stroke: var(--tile-stroke);
+      stroke-width: 0.9;
+      stroke-linejoin: round;
+      paint-order: stroke fill;
+    }
+
+    /* Camera motion più viva */
+    .scene {
+      animation: cameraFloat 6s ease-in-out infinite;
+      transform-origin: 200px 150px;
+    }
+
+    @keyframes cameraFloat {
+      0%,100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+      25% { transform: translateY(-4px) translateX(0.8px) rotate(-0.35deg); }
+      50% { transform: translateY(-10px) translateX(0px) rotate(0deg); }
+      75% { transform: translateY(-4px) translateX(-0.8px) rotate(0.35deg); }
+    }
+
+    .cube-wrapper {
+      transform-origin: 200px 138px;
+      animation: cubeBreath 6s ease-in-out infinite;
+    }
+
+    @keyframes cubeBreath {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.015); }
+    }
+
+    /* Ombra pavimento */
+    .ground-shadow {
+      animation: shadowPulse 6s ease-in-out infinite;
+      transform-origin: 200px 238px;
+    }
+
+    @keyframes shadowPulse {
+      0%,100% { opacity: .38; transform: scale(1); }
+      50% { opacity: .26; transform: scale(0.92); }
+    }
+
+    /* Glow di risoluzione */
+    .solve-glow {
+      opacity: 0;
+      animation: solveGlow 6s ease-in-out infinite;
+    }
+
+    @keyframes solveGlow {
+      0%,47% { opacity: 0; transform: scale(0.7); }
+      50% { opacity: .95; transform: scale(1.0); }
+      58% { opacity: .35; transform: scale(1.12); }
+      66% { opacity: 0; transform: scale(1.2); }
+      100% { opacity: 0; transform: scale(1.2); }
+    }
+
+    /* Flash overlay */
+    .solve-flash {
+      opacity: 0;
+      animation: solveFlash 6s ease-in-out infinite;
+    }
+
+    @keyframes solveFlash {
+      0%,48% { opacity: 0; }
+      50% { opacity: .65; }
+      53% { opacity: .18; }
+      57% { opacity: .32; }
+      62% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    /* Pulse facce risolte */
+    .face-pulse {
+      opacity: 0;
+      animation: facePulse 6s ease-in-out infinite;
+    }
+
+    @keyframes facePulse {
+      0%,49% { opacity: 0; }
+      50% { opacity: .75; }
+      60% { opacity: .18; }
+      70% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    /* Spark particles */
+    .spark {
+      opacity: 0;
+      transform-origin: 200px 138px;
+      animation: sparkBurst 6s ease-out infinite;
+    }
+
+    @keyframes sparkBurst {
+      0%,49% { opacity: 0; }
+      50% { opacity: 1; }
+      62% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    .s1 { animation-delay: 0s; }
+    .s2 { animation-delay: 0.02s; }
+    .s3 { animation-delay: 0.04s; }
+    .s4 { animation-delay: 0.06s; }
+    .s5 { animation-delay: 0.08s; }
+    .s6 { animation-delay: 0.1s; }
+
+    /* === Animazioni colori (tua logica, invariata) === */
+    @keyframes kw1 {
+      0% { fill: var(--o); } 10% { fill: var(--b); } 20% { fill: var(--g); } 30% { fill: var(--r); } 40% { fill: var(--y); }
+      50% { fill: var(--w); } 95% { fill: var(--w); } 100% { fill: var(--o); }
+    }
+    @keyframes kw2 {
+      0% { fill: var(--g); } 10% { fill: var(--y); } 20% { fill: var(--o); } 30% { fill: var(--b); } 40% { fill: var(--r); }
+      50% { fill: var(--w); } 95% { fill: var(--w); } 100% { fill: var(--g); }
+    }
+    @keyframes kw3 {
+      0% { fill: var(--r); } 10% { fill: var(--o); } 20% { fill: var(--y); } 30% { fill: var(--g); } 40% { fill: var(--b); }
+      50% { fill: var(--w); } 95% { fill: var(--w); } 100% { fill: var(--r); }
+    }
+
+    @keyframes kg1 {
+      0% { fill: var(--b); } 10% { fill: var(--r); } 20% { fill: var(--w); } 30% { fill: var(--y); } 40% { fill: var(--o); }
+      50% { fill: var(--g); } 95% { fill: var(--g); } 100% { fill: var(--b); }
+    }
+    @keyframes kg2 {
+      0% { fill: var(--y); } 10% { fill: var(--w); } 20% { fill: var(--b); } 30% { fill: var(--o); } 40% { fill: var(--r); }
+      50% { fill: var(--g); } 95% { fill: var(--g); } 100% { fill: var(--y); }
+    }
+    @keyframes kg3 {
+      0% { fill: var(--o); } 10% { fill: var(--b); } 20% { fill: var(--r); } 30% { fill: var(--w); } 40% { fill: var(--y); }
+      50% { fill: var(--g); } 95% { fill: var(--g); } 100% { fill: var(--o); }
+    }
+
+    @keyframes kr1 {
+      0% { fill: var(--w); } 10% { fill: var(--g); } 20% { fill: var(--y); } 30% { fill: var(--b); } 40% { fill: var(--o); }
+      50% { fill: var(--r); } 95% { fill: var(--r); } 100% { fill: var(--w); }
+    }
+    @keyframes kr2 {
+      0% { fill: var(--b); } 10% { fill: var(--y); } 20% { fill: var(--w); } 30% { fill: var(--o); } 40% { fill: var(--g); }
+      50% { fill: var(--r); } 95% { fill: var(--r); } 100% { fill: var(--b); }
+    }
+    @keyframes kr3 {
+      0% { fill: var(--g); } 10% { fill: var(--w); } 20% { fill: var(--b); } 30% { fill: var(--y); } 40% { fill: var(--o); }
+      50% { fill: var(--r); } 95% { fill: var(--r); } 100% { fill: var(--g); }
+    }
+
+    .w1 { animation: kw1 6s infinite step-end; }
+    .w2 { animation: kw2 6s infinite step-end; }
+    .w3 { animation: kw3 6s infinite step-end; }
+    
+    .g1 { animation: kg1 6s infinite step-end; }
+    .g2 { animation: kg2 6s infinite step-end; }
+    .g3 { animation: kg3 6s infinite step-end; }
+    
+    .r1 { animation: kr1 6s infinite step-end; }
+    .r2 { animation: kr2 6s infinite step-end; }
+    .r3 { animation: kr3 6s infinite step-end; }
+
+    /* Piccolo shimmer sui tile risolti (solo dopo solve) */
+    .shimmer {
+      opacity: 0;
+      animation: shimmer 6s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 52% { opacity: 0; }
+      56% { opacity: .22; }
+      70% { opacity: .08; }
+      95% { opacity: .10; }
+      100% { opacity: 0; }
+    }
+
+    .label {
+      font: 700 9px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      fill: rgba(255,255,255,.65);
+      letter-spacing: .06em;
+    }
+  </style>
+
+  <!-- Aura solve -->
+  <g class="solve-glow" transform="translate(200,138)">
+    <circle r="90" fill="url(#solve-glow)" filter="url(#cube-glow)" />
+  </g>
+
+  <!-- Ground shadow -->
+  <g class="ground-shadow">
+    <ellipse cx="200" cy="242" rx="82" ry="16" fill="#000" filter="url(#soft-shadow)" />
+  </g>
+
+  <g class="scene">
+    <g transform="translate(0, 20)">
+      <g class="cube-wrapper">
+        <!-- 
+          Struttura interna nera del cubo 
+          Funge da sfondo per le fughe tra i tiles.
+        -->
+        <polygon points="198,58 280,98 280,180 200,218 120,180 120,98"
+                 fill="var(--bg)" stroke="#111" stroke-width="2.2" stroke-linejoin="round" />
+
+        <!-- FACCIA SUPERIORE (Target White) -->
+        <!-- Riga 1 -->
+        <use href="#top-tile" x="200" y="60" class="tile w1" />
+        <use href="#top-tile" x="226" y="73" class="tile w2" />
+        <use href="#top-tile" x="252" y="86" class="tile w3" />
+        <!-- Riga 2 -->
+        <use href="#top-tile" x="174" y="73" class="tile w2" />
+        <use href="#top-tile" x="200" y="86" class="tile w3" />
+        <use href="#top-tile" x="226" y="99" class="tile w1" />
+        <!-- Riga 3 -->
+        <use href="#top-tile" x="148" y="86" class="tile w3" />
+        <use href="#top-tile" x="174" y="99" class="tile w1" />
+        <use href="#top-tile" x="200" y="112" class="tile w2" />
+
+        <!-- FACCIA SINISTRA (Target Green) -->
+        <use href="#left-tile" x="122" y="99" class="tile g1" />
+        <use href="#left-tile" x="148" y="112" class="tile g2" />
+        <use href="#left-tile" x="174" y="125" class="tile g3" />
+        <use href="#left-tile" x="122" y="125" class="tile g3" />
+        <use href="#left-tile" x="148" y="138" class="tile g1" />
+        <use href="#left-tile" x="174" y="151" class="tile g2" />
+        <use href="#left-tile" x="122" y="151" class="tile g2" />
+        <use href="#left-tile" x="148" y="164" class="tile g3" />
+        <use href="#left-tile" x="174" y="177" class="tile g1" />
+
+        <!-- FACCIA DESTRA (Target Red) -->
+        <use href="#right-tile" x="200" y="138" class="tile r3" />
+        <use href="#right-tile" x="226" y="125" class="tile r1" />
+        <use href="#right-tile" x="252" y="112" class="tile r2" />
+        <use href="#right-tile" x="200" y="164" class="tile r2" />
+        <use href="#right-tile" x="226" y="151" class="tile r3" />
+        <use href="#right-tile" x="252" y="138" class="tile r1" />
+        <use href="#right-tile" x="200" y="190" class="tile r1" />
+        <use href="#right-tile" x="226" y="177" class="tile r2" />
+        <use href="#right-tile" x="252" y="164" class="tile r3" />
+
+        <!-- Shading overlays facce -->
+        <polygon points="200,60 278,99 200,138 122,99" fill="url(#top-shine)" class="shimmer" />
+        <polygon points="122,99 200,138 200,216 122,177" fill="url(#left-shade)" opacity=".55" />
+        <polygon points="200,138 278,99 278,177 200,216" fill="url(#right-shade)" opacity=".45" />
+
+        <!-- Solve flash sul cubo -->
+        <g class="solve-flash">
+          <polygon points="198,58 280,98 280,180 200,218 120,180 120,98"
+                   fill="#ffffff" opacity=".25"/>
+        </g>
+
+        <!-- Pulse outline quando risolto -->
+        <g class="face-pulse">
+          <polygon points="198,58 280,98 280,180 200,218 120,180 120,98"
+                   fill="none" stroke="#9fd3ff" stroke-width="2.4"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- Spark particles (esplosione breve al solve) -->
+  <g>
+    <g class="spark s1">
+      <circle cx="200" cy="138" r="2.2" fill="#fff">
+        <animate attributeName="cx" values="200;240" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="138;112" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="0;2.2;0" dur="6s" repeatCount="indefinite" keyTimes="0;0.5;0.64"/>
+      </circle>
+    </g>
+    <g class="spark s2">
+      <circle cx="200" cy="138" r="2.0" fill="#fff">
+        <animate attributeName="cx" values="200;158" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="138;116" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="0;2.0;0" dur="6s" repeatCount="indefinite" keyTimes="0;0.5;0.63"/>
+      </circle>
+    </g>
+    <g class="spark s3">
+      <circle cx="200" cy="138" r="2.6" fill="#fff">
+        <animate attributeName="cx" values="200;250" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="138;168" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="0;2.6;0" dur="6s" repeatCount="indefinite" keyTimes="0;0.5;0.66"/>
+      </circle>
+    </g>
+    <g class="spark s4">
+      <circle cx="200" cy="138" r="2.3" fill="#fff">
+        <animate attributeName="cx" values="200;154" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="138;170" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="0;2.3;0" dur="6s" repeatCount="indefinite" keyTimes="0;0.5;0.65"/>
+      </circle>
+    </g>
+    <g class="spark s5">
+      <circle cx="200" cy="138" r="1.9" fill="#9fd3ff">
+        <animate attributeName="cx" values="200;202" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="138;88" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="0;1.9;0" dur="6s" repeatCount="indefinite" keyTimes="0;0.5;0.62"/>
+      </circle>
+    </g>
+    <g class="spark s6">
+      <circle cx="200" cy="138" r="1.9" fill="#9fd3ff">
+        <animate attributeName="cx" values="200;198" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="138;192" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="0;1.9;0" dur="6s" repeatCount="indefinite" keyTimes="0;0.5;0.62"/>
+      </circle>
+    </g>
+  </g>
+</svg>

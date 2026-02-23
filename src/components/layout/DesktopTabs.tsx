@@ -7,14 +7,14 @@ const DesktopTabs: React.FC = () => {
   const { t } = useLanguage();
 
   const baseClass = 'px-8 py-4 font-bold uppercase transition-all flex items-center gap-2';
-  const inactiveClass = 'bg-white hover:bg-yellow-100';
-  const activeClass = 'bg-black text-white';
+  const inactiveClass = 'bg-white hover:bg-lime-200';
+  const activeClass = 'bg-black text-[#fef3c7]';
 
   return (
-    <div className="hidden md:block sticky top-0 z-30">
-      <div className="bg-linear-to-b from-white/30 via-yellow-50/30 to-white/50 border-b-4 backdrop-blur-lg border-black pt-4 pb-6 mb-4">
+    <div className="hidden md:block sticky top-0 z-30 neo-entrance">
+      <div className="bg-linear-to-b from-white/30 via-cyan-50/30 to-white/50 border-b-4 backdrop-blur-lg border-black pt-4 pb-6 mb-4">
         <div className="mx-4 flex items-center justify-center">
-          <div className="inline-flex items-stretch border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="inline-flex items-stretch border-4 border-black bg-white shadow-[10px_10px_0px_0px_rgba(17,17,17,1)]">
             <NavLink
               to="/"
               end

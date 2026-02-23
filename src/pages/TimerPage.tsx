@@ -234,12 +234,12 @@ const TimerPage: React.FC = () => {
         <div
           onMouseUp={handlePressEnd}
           onTouchEnd={handlePressEnd}
-          className={`fixed inset-0 border-8 border-black cursor-pointer select-none z-50 flex items-center justify-center ${
+          className={`fixed inset-0 border-8 border-black cursor-pointer select-none z-50 flex items-center justify-center neo-entrance ${
             timerState === 'running'
-              ? 'bg-red-400'
+              ? 'bg-linear-to-br from-red-400 to-pink-400'
               : timerState === 'inspection'
-                ? 'bg-orange-300'
-                : 'bg-yellow-300'
+                ? 'bg-linear-to-br from-orange-300 to-yellow-300'
+                : 'bg-linear-to-br from-yellow-300 to-lime-300'
           }`}
         >
           <div className="text-center px-4">
@@ -276,7 +276,7 @@ const TimerPage: React.FC = () => {
                     onMouseUp={(e) => e.stopPropagation()}
                     onTouchEnd={(e) => e.stopPropagation()}
                     onClick={skipInspection}
-                    className="w-full px-5 py-3 border-4 border-black font-bold uppercase bg-lime-300 hover:bg-lime-400 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+                    className="w-full px-5 py-3 border-4 border-black font-bold uppercase bg-lime-300 hover:bg-lime-400 shadow-[6px_6px_0px_0px_rgba(17,17,17,1)]"
                   >
                     {t('skipInspection')}
                   </button>
@@ -307,8 +307,8 @@ const TimerPage: React.FC = () => {
       ) : (
         <>
 
-          <div className="border-4 border-black bg-white p-3 md:p-4 mb-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            <div className="text-sm font-bold uppercase mb-2">Categoria cubo</div>
+          <div className="border-4 border-black bg-linear-to-r from-white to-cyan-50 p-3 md:p-4 mb-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] neo-entrance">
+            <div className="text-sm font-bold uppercase mb-2">{t('cubeCategory')}</div>
             <div className="flex flex-wrap gap-2">
               {CUBE_MODES.map(mode => (
                 <button
@@ -317,19 +317,19 @@ const TimerPage: React.FC = () => {
                     setSelectedCubeMode(mode.id);
                     setScramble(generateScramble(mode.id));
                   }}
-                  className={`px-3 py-2 border-4 border-black font-bold uppercase text-xs md:text-sm ${mode.accentClass} ${selectedCubeMode === mode.id ? 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'opacity-80'}`}
+                  className={`px-3 py-2 border-4 border-black font-bold uppercase text-xs md:text-sm ${mode.accentClass} ${selectedCubeMode === mode.id ? 'shadow-[5px_5px_0px_0px_rgba(17,17,17,1)] scale-[1.02]' : 'opacity-80'}`}
                 >
                   {mode.shortLabel}
                 </button>
               ))}
             </div>
           </div>
-          <div className="border-4 border-black bg-cyan-300 p-4 md:p-6 mb-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="border-4 border-black bg-linear-to-br from-cyan-200 to-cyan-400 p-4 md:p-6 mb-6 shadow-[10px_10px_0px_0px_rgba(17,17,17,1)] neo-entrance">
             <div className="text-sm font-bold uppercase mb-2">{t('scramble')}</div>
             <div className="text-2xl md:text-3xl font-black font-mono wrap-break-word">
               {scramble}
             </div>
-            <div className="text-xs font-bold uppercase mt-2">Modalità: {getCubeModeMeta(selectedCubeMode).label}</div>
+            <div className="text-xs font-bold uppercase mt-2">{t('mode')}: {getCubeModeMeta(selectedCubeMode).shortLabel}</div>
           </div>
 
           <div
@@ -337,7 +337,7 @@ const TimerPage: React.FC = () => {
             onMouseUp={handlePressEnd}
             onTouchStart={handlePressStart}
             onTouchEnd={handlePressEnd}
-            className={`border-8 border-black ${getStateColor()} p-8 md:p-20 mb-6 cursor-pointer select-none shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all active:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-1.5 active:translate-y-1.5`}
+            className={`border-8 border-black ${getStateColor()} p-8 md:p-20 mb-6 cursor-pointer select-none shadow-[14px_14px_0px_0px_rgba(17,17,17,1)] transition-all active:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] active:translate-x-1.5 active:translate-y-1.5 neo-entrance`}
           >
             <div className="text-center">
               <div className="text-6xl md:text-8xl font-black mb-4 font-mono">
@@ -351,21 +351,21 @@ const TimerPage: React.FC = () => {
 
           {currentStats && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-              <div className="border-4 border-black bg-green-300 p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <div className="border-4 border-black bg-linear-to-br from-green-200 to-lime-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
                 <div className="flex items-center gap-2 mb-2">
                   <Award size={24} />
                   <span className="font-bold uppercase text-sm">{t('best')}</span>
                 </div>
                 <div className="text-3xl font-black font-mono">{formatTime(currentStats.best)}</div>
               </div>
-              <div className="border-4 border-black bg-blue-300 p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <div className="border-4 border-black bg-linear-to-br from-blue-200 to-cyan-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp size={24} />
                   <span className="font-bold uppercase text-sm">{t('average')}</span>
                 </div>
                 <div className="text-3xl font-black font-mono">{formatTime(currentStats.average)}</div>
               </div>
-              <div className="border-4 border-black bg-red-300 p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <div className="border-4 border-black bg-linear-to-br from-rose-200 to-red-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingDown size={24} />
                   <span className="font-bold uppercase text-sm">{t('worst')}</span>
@@ -378,7 +378,7 @@ const TimerPage: React.FC = () => {
           {currentSession && currentSession.times.length >= 5 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               {calculateAo5(currentSession.times.map(t => t.time)) && (
-                <div className="border-4 border-black bg-cyan-300 p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                <div className="border-4 border-black bg-linear-to-br from-cyan-200 to-blue-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp size={24} />
                     <span className="font-bold uppercase text-sm">{t('currentAo5')}</span>
@@ -394,7 +394,7 @@ const TimerPage: React.FC = () => {
                 </div>
               )}
               {currentSession.times.length >= 12 && calculateAo12(currentSession.times.map(t => t.time)) && (
-                <div className="border-4 border-black bg-orange-300 p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                <div className="border-4 border-black bg-linear-to-br from-yellow-200 to-orange-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp size={24} />
                     <span className="font-bold uppercase text-sm">{t('currentAo12')}</span>
@@ -413,15 +413,15 @@ const TimerPage: React.FC = () => {
           )}
 
           {currentSession && currentSession.times.length > 0 && (
-            <div className="border-4 border-black bg-purple-300 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="mt-8 neo-entrance">
               <h2 className="text-2xl font-black uppercase mb-4">{t('recentTimes')}</h2>
               <div className="space-y-2">
-                {[...currentSession.times].reverse().slice(0, 10).map((entry, idx) => {
+                {[...currentSession.times].reverse().map((entry, idx) => {
                   const originalIdx = currentSession.times.length - 1 - idx;
                   return (
                     <div
                       key={idx}
-                      className="flex items-center justify-between bg-white border-2 border-black p-3"
+                      className="flex items-center justify-between bg-white border-2 border-black p-3 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]"
                     >
                       <span className="font-mono text-xl font-bold">{formatTime(entry.time)}</span>
                       <button
@@ -432,7 +432,7 @@ const TimerPage: React.FC = () => {
                             () => deleteTime(currentSession.id, originalIdx)
                           );
                         }}
-                        className="p-3 min-w-11 min-h-11 border-2 border-black bg-red-300 hover:bg-red-400"
+                        className="p-3 min-w-11 min-h-11 border-2 border-black bg-red-300 hover:bg-red-400 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]"
                       >
                         <Trash2 size={16} />
                       </button>
