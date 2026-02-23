@@ -82,18 +82,18 @@ const MoveTimeDialog: React.FC<MoveTimeDialogProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md border-4 border-black bg-linear-to-br from-white to-cyan-100 p-6 shadow-[10px_10px_0px_0px_rgba(17,17,17,1)] neo-entrance"
+        className="neo-surface-cool w-full max-w-md p-6 neo-entrance"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-xl font-black uppercase mb-2">{title}</h3>
-        <p className="text-sm font-bold mb-6 text-gray-700">{subtitle}</p>
+        <p className="mb-6 text-sm font-bold text-black/75">{subtitle}</p>
 
         {availableSessions.length === 0 ? (
-          <div className="border-4 border-black bg-yellow-200 p-4 mb-6 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]">
+          <div className="neo-surface mb-6 p-4">
             <p className="text-sm font-bold">{noSessionsMessage}</p>
           </div>
         ) : (
@@ -107,12 +107,12 @@ const MoveTimeDialog: React.FC<MoveTimeDialogProps> = ({
                     onMove(session.id);
                     onClose();
                   }}
-                  className="w-full border-4 border-black bg-linear-to-r from-cyan-200 to-blue-200 hover:from-cyan-300 hover:to-blue-300 p-4 text-left transition-all hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] active:translate-x-1 active:translate-y-1"
+                  className="neo-surface w-full p-4 text-left"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex-1">
                       <div className="font-black uppercase text-lg">{session.name}</div>
-                      <div className="text-xs font-bold text-gray-700 mt-1">
+                      <div className="mt-1 text-xs font-bold text-black/75">
                         {sessionDate.toLocaleDateString(locale)} - {session.times.length} {session.times.length === 1 ? t('solve') : t('solves')}
                       </div>
                     </div>
@@ -127,7 +127,7 @@ const MoveTimeDialog: React.FC<MoveTimeDialogProps> = ({
         <div className="flex items-center justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-3 min-h-11 border-4 border-black font-bold uppercase bg-white hover:bg-gray-100 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
+            className="neo-btn neo-btn-ghost min-h-11 px-6 py-3"
           >
             {cancelLabel}
           </button>

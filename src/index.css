@@ -4,12 +4,14 @@
 :root {
   --neo-ink: #111111;
   --neo-paper: #fffef8;
+  --neo-paper-strong: #fffbea;
   --neo-bg-a: #ffe256;
   --neo-bg-b: #7ee7ff;
   --neo-bg-c: #ff8db1;
   --neo-accent: #9bff4f;
   --neo-shadow: 10px 10px 0 0 var(--neo-ink);
   --neo-shadow-sm: 6px 6px 0 0 var(--neo-ink);
+  --neo-shadow-xs: 3px 3px 0 0 var(--neo-ink);
 }
 
 * {
@@ -27,9 +29,9 @@ body {
   color: var(--neo-ink);
   font-family: 'Manrope', sans-serif;
   background:
-    radial-gradient(circle at 8% 12%, rgba(255, 226, 86, 0.7), transparent 28%),
-    radial-gradient(circle at 92% 5%, rgba(126, 231, 255, 0.72), transparent 32%),
-    radial-gradient(circle at 87% 84%, rgba(255, 141, 177, 0.7), transparent 30%),
+    radial-gradient(circle at 8% 12%, rgba(255, 226, 86, 0.38), transparent 30%),
+    radial-gradient(circle at 92% 5%, rgba(126, 231, 255, 0.34), transparent 34%),
+    radial-gradient(circle at 87% 84%, rgba(255, 141, 177, 0.34), transparent 32%),
     linear-gradient(145deg, #fffef8 0%, #fff9d9 36%, #f0f9ff 100%);
   background-attachment: fixed;
 }
@@ -68,6 +70,13 @@ input {
   transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease, color 150ms ease;
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--neo-ink);
+  outline-offset: 1px;
+}
+
 button:active,
 a:active {
   transform: translate(2px, 2px);
@@ -82,6 +91,145 @@ a:active {
 .neo-panel-soft {
   border: 4px solid var(--neo-ink);
   box-shadow: var(--neo-shadow-sm);
+}
+
+.neo-surface {
+  border: 4px solid var(--neo-ink);
+  border-radius: 1rem;
+  background: linear-gradient(145deg, #fffef8 0%, #fffcf0 55%, #f4fbff 100%);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-surface-warm {
+  border: 4px solid var(--neo-ink);
+  border-radius: 1rem;
+  background: linear-gradient(130deg, #fff6de 0%, #fff0e4 52%, #fff9ef 100%);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-surface-cool {
+  border: 4px solid var(--neo-ink);
+  border-radius: 1rem;
+  background: linear-gradient(130deg, #eef8ff 0%, #edf7ff 50%, #fff8e8 100%);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-surface-punch {
+  border: 4px solid var(--neo-ink);
+  border-radius: 1rem;
+  background: linear-gradient(115deg, #ffe7a6 0%, #ffe1ec 52%, #d7f3ff 100%);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-block {
+  border: 2px solid var(--neo-ink);
+  border-radius: 0.75rem;
+  background: rgba(255, 254, 248, 0.9);
+  box-shadow: var(--neo-shadow-xs);
+}
+
+.neo-chip {
+  border: 2px solid var(--neo-ink);
+  border-radius: 0.6rem;
+  background: var(--neo-paper-strong);
+  box-shadow: var(--neo-shadow-xs);
+}
+
+.neo-badge-active {
+  border: 2px solid var(--neo-ink);
+  border-radius: 0.6rem;
+  background: var(--neo-ink);
+  color: #a5f3fc;
+  box-shadow: var(--neo-shadow-xs);
+}
+
+.neo-btn {
+  border: 4px solid var(--neo-ink);
+  border-radius: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #fff6d8;
+  box-shadow: var(--neo-shadow-sm);
+}
+
+.neo-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: var(--neo-shadow-xs);
+}
+
+.neo-btn:active {
+  transform: translate(2px, 2px);
+}
+
+.neo-btn-ghost {
+  background: #fffdf2;
+}
+
+.neo-btn-accent {
+  background: linear-gradient(120deg, #ffe072 0%, #ffd3e6 45%, #aeeeff 100%);
+}
+
+.neo-btn-positive {
+  background: linear-gradient(120deg, #b5ee7a 0%, #d4f6a8 100%);
+}
+
+.neo-btn-danger {
+  background: linear-gradient(120deg, #ffb7c0 0%, #ffc9cf 100%);
+}
+
+.neo-btn-info {
+  background: linear-gradient(120deg, #8be7ff 0%, #b4efff 100%);
+}
+
+.neo-icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+}
+
+.neo-input {
+  border: 4px solid var(--neo-ink);
+  border-radius: 0.75rem;
+  background: var(--neo-paper);
+  color: var(--neo-ink);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.neo-stat-best {
+  border: 4px solid var(--neo-ink);
+  border-radius: 1rem;
+  background: linear-gradient(130deg, #b6ef7d 0%, #d4f7aa 100%);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-stat-average {
+  border: 4px solid var(--neo-ink);
+  border-radius: 1rem;
+  background: linear-gradient(130deg, #8ce8ff 0%, #b9f2ff 100%);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-stat-worst {
+  border: 4px solid var(--neo-ink);
+  border-radius: 1rem;
+  background: linear-gradient(130deg, #ffb9c3 0%, #ffd2d7 100%);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-stat-chip-best {
+  background: #b9ef85;
+}
+
+.neo-stat-chip-average {
+  background: #9ee9ff;
+}
+
+.neo-stat-chip-worst {
+  background: #ffbcc8;
 }
 
 .neo-entrance {

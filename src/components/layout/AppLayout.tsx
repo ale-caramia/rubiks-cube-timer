@@ -81,7 +81,7 @@ const AppLayout: React.FC = () => {
       <div className="max-w-5xl mx-auto">
         <div className="sticky top-0 z-40 pt-2 md:pt-3">
           <div className="mx-2 md:mx-4">
-            <div className="border-4 border-black bg-linear-to-r from-yellow-300 via-pink-300 to-cyan-300 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] neo-entrance">
+            <div className="neo-surface-punch neo-entrance">
               <div className="px-2 py-2 md:px-3 md:py-2.5 flex items-center justify-between gap-2">
                 <div className="min-w-0 flex items-center gap-2">
                   <img
@@ -105,7 +105,7 @@ const AppLayout: React.FC = () => {
                   {isSessionsRootPage && (
                     <button
                       onClick={handleCreateSession}
-                      className="w-9 h-9 border-2 border-black bg-cyan-200 hover:bg-cyan-300 flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]"
+                      className="neo-chip h-9 w-9 bg-cyan-200 flex items-center justify-center"
                       aria-label={t('newSession')}
                       title={t('newSession')}
                     >
@@ -120,8 +120,8 @@ const AppLayout: React.FC = () => {
                         <button
                           key={item.path}
                           onClick={() => navigate(item.path)}
-                          className={`w-9 h-9 border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] ${
-                            active ? 'bg-black text-cyan-200' : 'bg-white hover:bg-gray-100'
+                          className={`h-9 w-9 flex items-center justify-center ${
+                            active ? 'neo-badge-active' : 'neo-chip bg-white/85'
                           }`}
                           aria-label={item.label}
                           title={item.label}
@@ -141,20 +141,20 @@ const AppLayout: React.FC = () => {
 
         <div className="px-2 md:px-4 mt-3 md:mt-4">
           {!firebaseConfigured && (
-            <div className="mb-3 border-4 border-black bg-red-200 p-3 text-sm font-bold neo-wiggle">
+            <div className="neo-surface mb-3 p-3 text-sm font-bold neo-wiggle">
               {t('firebaseNotConfigured')}
             </div>
           )}
 
           {migrationNeeded && user && (
-            <div className="mb-3 border-4 border-black bg-lime-200 p-3 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            <div className="neo-surface-cool mb-3 p-3 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
               <p className="text-sm font-bold">
                 {t('migrationPrompt')}
               </p>
               <button
                 onClick={() => void migrateLegacyData()}
                 disabled={migrating}
-                className="px-4 py-2 border-4 border-black font-bold uppercase bg-white hover:bg-gray-100 disabled:opacity-60 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]"
+                className="neo-btn neo-btn-ghost px-4 py-2 disabled:opacity-60"
               >
                 {migrating ? t('migrationInProgress') : t('migrateNow')}
               </button>
@@ -162,12 +162,12 @@ const AppLayout: React.FC = () => {
           )}
 
           {showAuthGate ? (
-            <div className="border-4 border-black bg-linear-to-br from-white to-yellow-100 p-6 shadow-[10px_10px_0px_0px_rgba(17,17,17,1)] neo-entrance">
+            <div className="neo-surface-warm p-6 neo-entrance">
               <h2 className="text-2xl font-black uppercase mb-2">{t('signInToContinue')}</h2>
               <p className="font-bold mb-4">{t('signInHint')}</p>
               <button
                 onClick={() => navigate('/settings')}
-                className="px-4 py-3 border-4 border-black font-bold uppercase bg-cyan-300 hover:bg-cyan-400 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]"
+                className="neo-btn neo-btn-accent px-4 py-3"
               >
                 {t('openSettings')}
               </button>

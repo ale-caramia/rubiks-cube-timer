@@ -58,28 +58,28 @@ const StatisticsPage: React.FC = () => {
         <section className="pt-2 md:pt-3">
           <h2 className="text-2xl md:text-3xl font-black uppercase mb-3 md:mb-4">{t('globalStats')}</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="border-4 border-black bg-linear-to-br from-amber-200 to-yellow-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+            <div className="neo-surface-warm p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Hash size={24} />
                 <span className="font-bold uppercase text-sm">{t('total')}</span>
               </div>
               <div className="text-3xl font-black">{globalStats.count}</div>
             </div>
-            <div className="border-4 border-black bg-linear-to-br from-green-200 to-lime-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+            <div className="neo-stat-best p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Award size={24} />
                 <span className="font-bold uppercase text-sm">{t('best')}</span>
               </div>
               <div className="text-3xl font-black font-mono">{formatTime(globalStats.best)}</div>
             </div>
-            <div className="border-4 border-black bg-linear-to-br from-blue-200 to-cyan-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+            <div className="neo-stat-average p-4">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp size={24} />
                 <span className="font-bold uppercase text-sm">{t('average')}</span>
               </div>
               <div className="text-3xl font-black font-mono">{formatTime(globalStats.average)}</div>
             </div>
-            <div className="border-4 border-black bg-linear-to-br from-rose-200 to-red-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+            <div className="neo-stat-worst p-4">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingDown size={24} />
                 <span className="font-bold uppercase text-sm">{t('worst')}</span>
@@ -91,7 +91,7 @@ const StatisticsPage: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
-        <div className="border-4 border-black bg-linear-to-br from-cyan-200 to-blue-200 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+        <div className="neo-surface-cool p-4">
           <h3 className="text-lg md:text-xl font-black uppercase mb-3">{t('averageLast7Days')}</h3>
           <div className="h-48 flex items-end gap-2">
             {trendByDay.map(bucket => {
@@ -99,8 +99,8 @@ const StatisticsPage: React.FC = () => {
               return (
                 <div key={bucket.label} className="flex-1 flex flex-col items-center gap-1">
                   <div className="text-[10px] md:text-xs font-black font-mono min-h-4">{bucket.value ? formatTime(bucket.value) : '-'}</div>
-                  <div className="h-28 w-full border-2 border-black bg-white flex items-end">
-                    <div className="w-full bg-linear-to-t from-cyan-500 to-blue-500 border-t-2 border-black transition-all duration-300" style={{ height: `${height}%` }} />
+                  <div className="neo-block h-28 w-full flex items-end rounded-lg border-2">
+                    <div className="w-full bg-linear-to-t from-cyan-400 to-blue-400 border-t-2 border-black transition-all duration-300" style={{ height: `${height}%` }} />
                   </div>
                   <div className="text-[10px] md:text-xs font-bold uppercase">{bucket.label}</div>
                 </div>
@@ -109,7 +109,7 @@ const StatisticsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-4 border-black bg-linear-to-br from-lime-200 to-green-200 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+        <div className="neo-surface-warm p-4">
           <h3 className="text-lg md:text-xl font-black uppercase mb-3">{t('solvesByMode')}</h3>
           <div className="space-y-2">
             {modeDistribution.length === 0 ? (
@@ -120,9 +120,9 @@ const StatisticsPage: React.FC = () => {
                   <span>{bucket.label}</span>
                   <span>{bucket.value}</span>
                 </div>
-                <div className="h-4 border-2 border-black bg-white">
+                <div className="neo-block h-4 rounded-md border-2">
                   <div
-                    className="h-full bg-linear-to-r from-lime-500 to-green-500 border-r-2 border-black transition-all duration-300"
+                    className="h-full bg-linear-to-r from-lime-400 to-green-400 border-r-2 border-black transition-all duration-300"
                     style={{ width: `${Math.max(4, Math.round((bucket.value / maxDistribution) * 100))}%` }}
                   />
                 </div>
@@ -138,34 +138,34 @@ const StatisticsPage: React.FC = () => {
           {(() => {
             const stats = getDailyStats(modeSessions);
             return (
-              <div className="border-4 border-black bg-linear-to-br from-blue-300 to-cyan-200 p-6 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <div className="neo-surface-cool p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl md:text-2xl font-black uppercase">{t('today')}</h3>
                   <Award className="opacity-50" size={32} />
                 </div>
                 {stats.count > 0 ? (
                   <div className="space-y-3">
-                    <div className="bg-white border-2 border-black p-3">
-                      <div className="text-xs font-bold uppercase text-gray-600 mb-1">{t('solves')}</div>
+                    <div className="neo-block p-3">
+                      <div className="text-xs font-bold uppercase text-black/65 mb-1">{t('solves')}</div>
                       <div className="text-2xl font-black">{stats.count}</div>
                     </div>
-                    <div className="bg-white border-2 border-black p-3">
-                      <div className="text-xs font-bold uppercase text-gray-600 mb-1">{t('average')}</div>
+                    <div className="neo-block p-3">
+                      <div className="text-xs font-bold uppercase text-black/65 mb-1">{t('average')}</div>
                       <div className="text-xl font-black font-mono">{formatTime(stats.average!)}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-green-100 border-2 border-black p-2">
+                      <div className="neo-block neo-stat-chip-best p-2">
                         <div className="text-xs font-bold uppercase mb-1">{t('best')}</div>
                         <div className="text-lg font-black font-mono">{formatTime(stats.best!)}</div>
                       </div>
-                      <div className="bg-red-100 border-2 border-black p-2">
+                      <div className="neo-block neo-stat-chip-worst p-2">
                         <div className="text-xs font-bold uppercase mb-1">{t('worst')}</div>
                         <div className="text-lg font-black font-mono">{formatTime(stats.worst!)}</div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-600 font-bold">{t('noData')}</div>
+                  <div className="text-center py-8 text-black/65 font-bold">{t('noData')}</div>
                 )}
               </div>
             );
@@ -174,34 +174,34 @@ const StatisticsPage: React.FC = () => {
           {(() => {
             const stats = getWeeklyStats(modeSessions);
             return (
-              <div className="border-4 border-black bg-linear-to-br from-fuchsia-300 to-purple-200 p-6 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <div className="neo-surface p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl md:text-2xl font-black uppercase">{t('thisWeek')}</h3>
                   <TrendingUp className="opacity-50" size={32} />
                 </div>
                 {stats.count > 0 ? (
                   <div className="space-y-3">
-                    <div className="bg-white border-2 border-black p-3">
-                      <div className="text-xs font-bold uppercase text-gray-600 mb-1">{t('solves')}</div>
+                    <div className="neo-block p-3">
+                      <div className="text-xs font-bold uppercase text-black/65 mb-1">{t('solves')}</div>
                       <div className="text-2xl font-black">{stats.count}</div>
                     </div>
-                    <div className="bg-white border-2 border-black p-3">
-                      <div className="text-xs font-bold uppercase text-gray-600 mb-1">{t('average')}</div>
+                    <div className="neo-block p-3">
+                      <div className="text-xs font-bold uppercase text-black/65 mb-1">{t('average')}</div>
                       <div className="text-xl font-black font-mono">{formatTime(stats.average!)}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-green-100 border-2 border-black p-2">
+                      <div className="neo-block neo-stat-chip-best p-2">
                         <div className="text-xs font-bold uppercase mb-1">{t('best')}</div>
                         <div className="text-lg font-black font-mono">{formatTime(stats.best!)}</div>
                       </div>
-                      <div className="bg-red-100 border-2 border-black p-2">
+                      <div className="neo-block neo-stat-chip-worst p-2">
                         <div className="text-xs font-bold uppercase mb-1">{t('worst')}</div>
                         <div className="text-lg font-black font-mono">{formatTime(stats.worst!)}</div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-600 font-bold">{t('noData')}</div>
+                  <div className="text-center py-8 text-black/65 font-bold">{t('noData')}</div>
                 )}
               </div>
             );
@@ -210,34 +210,34 @@ const StatisticsPage: React.FC = () => {
           {(() => {
             const stats = getMonthlyStats(modeSessions);
             return (
-              <div className="border-4 border-black bg-linear-to-br from-pink-300 to-rose-200 p-6 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <div className="neo-surface-warm p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl md:text-2xl font-black uppercase">{t('thisMonth')}</h3>
                   <TrendingDown className="opacity-50" size={32} />
                 </div>
                 {stats.count > 0 ? (
                   <div className="space-y-3">
-                    <div className="bg-white border-2 border-black p-3">
-                      <div className="text-xs font-bold uppercase text-gray-600 mb-1">{t('solves')}</div>
+                    <div className="neo-block p-3">
+                      <div className="text-xs font-bold uppercase text-black/65 mb-1">{t('solves')}</div>
                       <div className="text-2xl font-black">{stats.count}</div>
                     </div>
-                    <div className="bg-white border-2 border-black p-3">
-                      <div className="text-xs font-bold uppercase text-gray-600 mb-1">{t('average')}</div>
+                    <div className="neo-block p-3">
+                      <div className="text-xs font-bold uppercase text-black/65 mb-1">{t('average')}</div>
                       <div className="text-xl font-black font-mono">{formatTime(stats.average!)}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-green-100 border-2 border-black p-2">
+                      <div className="neo-block neo-stat-chip-best p-2">
                         <div className="text-xs font-bold uppercase mb-1">{t('best')}</div>
                         <div className="text-lg font-black font-mono">{formatTime(stats.best!)}</div>
                       </div>
-                      <div className="bg-red-100 border-2 border-black p-2">
+                      <div className="neo-block neo-stat-chip-worst p-2">
                         <div className="text-xs font-bold uppercase mb-1">{t('worst')}</div>
                         <div className="text-lg font-black font-mono">{formatTime(stats.worst!)}</div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-600 font-bold">{t('noData')}</div>
+                  <div className="text-center py-8 text-black/65 font-bold">{t('noData')}</div>
                 )}
               </div>
             );
@@ -246,8 +246,8 @@ const StatisticsPage: React.FC = () => {
       </div>
 
       {!globalStats && (
-        <div className="border-4 border-black bg-white p-8 text-center shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
-          <p className="text-xl font-bold uppercase text-gray-600">{t('noData')}</p>
+        <div className="neo-surface p-8 text-center">
+          <p className="text-xl font-bold uppercase text-black/65">{t('noData')}</p>
         </div>
       )}
     </div>

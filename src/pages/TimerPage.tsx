@@ -182,12 +182,12 @@ const TimerPage: React.FC = () => {
 
   const getStateColor = (): string => {
     switch (timerState) {
-      case 'ready': return 'bg-green-400';
-      case 'inspection': return 'bg-orange-300';
-      case 'countdown': return 'bg-yellow-300';
-      case 'running': return 'bg-red-400';
-      case 'stopped': return 'bg-blue-400';
-      default: return 'bg-yellow-400';
+      case 'ready': return 'bg-linear-to-br from-lime-300 via-yellow-200 to-cyan-200';
+      case 'inspection': return 'bg-linear-to-br from-amber-300 via-orange-200 to-yellow-200';
+      case 'countdown': return 'bg-linear-to-br from-cyan-300 via-sky-200 to-blue-200';
+      case 'running': return 'bg-linear-to-br from-rose-300 via-red-300 to-orange-200';
+      case 'stopped': return 'bg-linear-to-br from-cyan-300 via-teal-200 to-lime-200';
+      default: return 'bg-linear-to-br from-yellow-300 via-amber-200 to-cyan-200';
     }
   };
 
@@ -236,10 +236,10 @@ const TimerPage: React.FC = () => {
           onTouchEnd={handlePressEnd}
           className={`fixed inset-0 border-8 border-black cursor-pointer select-none z-50 flex items-center justify-center neo-entrance ${
             timerState === 'running'
-              ? 'bg-linear-to-br from-red-400 to-pink-400'
+              ? 'bg-linear-to-br from-rose-400 via-red-300 to-orange-300'
               : timerState === 'inspection'
-                ? 'bg-linear-to-br from-orange-300 to-yellow-300'
-                : 'bg-linear-to-br from-yellow-300 to-lime-300'
+                ? 'bg-linear-to-br from-amber-400 via-yellow-300 to-orange-300'
+                : 'bg-linear-to-br from-cyan-400 via-sky-300 to-blue-300'
           }`}
         >
           <div className="text-center px-4">
@@ -276,7 +276,7 @@ const TimerPage: React.FC = () => {
                     onMouseUp={(e) => e.stopPropagation()}
                     onTouchEnd={(e) => e.stopPropagation()}
                     onClick={skipInspection}
-                    className="w-full px-5 py-3 border-4 border-black font-bold uppercase bg-lime-300 hover:bg-lime-400 shadow-[6px_6px_0px_0px_rgba(17,17,17,1)]"
+                    className="neo-btn neo-btn-accent w-full px-5 py-3"
                   >
                     {t('skipInspection')}
                   </button>
@@ -307,7 +307,7 @@ const TimerPage: React.FC = () => {
       ) : (
         <>
 
-          <div className="border-4 border-black bg-linear-to-r from-white to-cyan-50 p-3 md:p-4 mb-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] neo-entrance">
+          <div className="neo-surface p-3 md:p-4 mb-4 neo-entrance">
             <div className="text-sm font-bold uppercase mb-2">{t('cubeCategory')}</div>
             <div className="flex flex-wrap gap-2">
               {CUBE_MODES.map(mode => (
@@ -317,14 +317,18 @@ const TimerPage: React.FC = () => {
                     setSelectedCubeMode(mode.id);
                     setScramble(generateScramble(mode.id));
                   }}
-                  className={`px-3 py-2 border-4 border-black font-bold uppercase text-xs md:text-sm ${mode.accentClass} ${selectedCubeMode === mode.id ? 'shadow-[5px_5px_0px_0px_rgba(17,17,17,1)] scale-[1.02]' : 'opacity-80'}`}
+                  className={`rounded-xl px-3 py-2 border-4 border-black font-bold uppercase text-xs md:text-sm ${
+                    selectedCubeMode === mode.id
+                      ? 'bg-black text-cyan-200 shadow-[5px_5px_0px_0px_rgba(17,17,17,1)]'
+                      : `${mode.accentClass} opacity-85 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]`
+                  }`}
                 >
                   {mode.shortLabel}
                 </button>
               ))}
             </div>
           </div>
-          <div className="border-4 border-black bg-linear-to-br from-cyan-200 to-cyan-400 p-4 md:p-6 mb-6 shadow-[10px_10px_0px_0px_rgba(17,17,17,1)] neo-entrance">
+          <div className="neo-surface-cool p-4 md:p-6 mb-6 neo-entrance">
             <div className="text-sm font-bold uppercase mb-2">{t('scramble')}</div>
             <div className="text-2xl md:text-3xl font-black font-mono wrap-break-word">
               {scramble}
@@ -337,7 +341,9 @@ const TimerPage: React.FC = () => {
             onMouseUp={handlePressEnd}
             onTouchStart={handlePressStart}
             onTouchEnd={handlePressEnd}
-            className={`border-8 border-black ${getStateColor()} p-8 md:p-20 mb-6 cursor-pointer select-none shadow-[14px_14px_0px_0px_rgba(17,17,17,1)] transition-all active:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] active:translate-x-1.5 active:translate-y-1.5 neo-entrance`}
+            className={`rounded-2xl border-8 border-black ${getStateColor()} p-8 md:p-20 mb-6 cursor-pointer select-none shadow-[14px_14px_0px_0px_rgba(17,17,17,1)] transition-all active:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] active:translate-x-1.5 active:translate-y-1.5 neo-entrance ${
+              timerState === 'idle' ? 'ring-4 ring-yellow-300/80' : ''
+            }`}
           >
             <div className="text-center">
               <div className="text-6xl md:text-8xl font-black mb-4 font-mono">
@@ -351,21 +357,21 @@ const TimerPage: React.FC = () => {
 
           {currentStats && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-              <div className="border-4 border-black bg-linear-to-br from-green-200 to-lime-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <div className="neo-stat-best p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Award size={24} />
                   <span className="font-bold uppercase text-sm">{t('best')}</span>
                 </div>
                 <div className="text-3xl font-black font-mono">{formatTime(currentStats.best)}</div>
               </div>
-              <div className="border-4 border-black bg-linear-to-br from-blue-200 to-cyan-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <div className="neo-stat-average p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp size={24} />
                   <span className="font-bold uppercase text-sm">{t('average')}</span>
                 </div>
                 <div className="text-3xl font-black font-mono">{formatTime(currentStats.average)}</div>
               </div>
-              <div className="border-4 border-black bg-linear-to-br from-rose-200 to-red-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <div className="neo-stat-worst p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingDown size={24} />
                   <span className="font-bold uppercase text-sm">{t('worst')}</span>
@@ -378,7 +384,7 @@ const TimerPage: React.FC = () => {
           {currentSession && currentSession.times.length >= 5 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               {calculateAo5(currentSession.times.map(t => t.time)) && (
-                <div className="border-4 border-black bg-linear-to-br from-cyan-200 to-blue-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+                <div className="neo-surface-cool p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp size={24} />
                     <span className="font-bold uppercase text-sm">{t('currentAo5')}</span>
@@ -394,7 +400,7 @@ const TimerPage: React.FC = () => {
                 </div>
               )}
               {currentSession.times.length >= 12 && calculateAo12(currentSession.times.map(t => t.time)) && (
-                <div className="border-4 border-black bg-linear-to-br from-yellow-200 to-orange-300 p-4 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+                <div className="neo-surface-warm p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp size={24} />
                     <span className="font-bold uppercase text-sm">{t('currentAo12')}</span>
@@ -421,7 +427,7 @@ const TimerPage: React.FC = () => {
                   return (
                     <div
                       key={idx}
-                      className="flex items-center justify-between bg-white border-2 border-black p-3 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]"
+                      className="neo-block flex items-center justify-between p-3"
                     >
                       <span className="font-mono text-xl font-bold">{formatTime(entry.time)}</span>
                       <button
@@ -432,7 +438,7 @@ const TimerPage: React.FC = () => {
                             () => deleteTime(currentSession.id, originalIdx)
                           );
                         }}
-                        className="p-3 min-w-11 min-h-11 border-2 border-black bg-red-300 hover:bg-red-400 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]"
+                        className="neo-btn neo-btn-danger neo-icon-btn"
                       >
                         <Trash2 size={16} />
                       </button>

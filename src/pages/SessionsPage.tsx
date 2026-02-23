@@ -112,7 +112,7 @@ const SessionsPage: React.FC = () => {
   const renderMonthsView = () => (
     <>
       {monthGroups.length === 0 ? (
-        <div className="border-4 border-black p-8 bg-white text-center shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+        <div className="neo-surface p-8 text-center">
           <p className="font-bold text-lg">{t('noSessions')}</p>
         </div>
       ) : (
@@ -123,7 +123,7 @@ const SessionsPage: React.FC = () => {
               <div
                 key={monthGroup.monthKey}
                 onClick={() => navigate(`/sessions?month=${monthGroup.monthKey}`)}
-                className="border-4 border-black p-6 bg-linear-to-br from-yellow-200 to-pink-200 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] cursor-pointer hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+                className="neo-surface-warm p-6 cursor-pointer hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -147,19 +147,19 @@ const SessionsPage: React.FC = () => {
                   </div>
                   <div>
                     <div className="font-bold uppercase text-xs">{t('best')}</div>
-                    <div className="font-black text-lg font-mono">
+                    <div className="font-black text-lg font-mono text-green-800">
                       {stats.best !== null ? formatTime(stats.best) : '-'}
                     </div>
                   </div>
                   <div>
                     <div className="font-bold uppercase text-xs">{t('average')}</div>
-                    <div className="font-black text-lg font-mono">
+                    <div className="font-black text-lg font-mono text-sky-800">
                       {stats.average !== null ? formatTime(stats.average) : '-'}
                     </div>
                   </div>
                   <div>
                     <div className="font-bold uppercase text-xs">{t('worst')}</div>
-                    <div className="font-black text-lg font-mono">
+                    <div className="font-black text-lg font-mono text-rose-800">
                       {stats.worst !== null ? formatTime(stats.worst) : '-'}
                     </div>
                   </div>
@@ -191,7 +191,7 @@ const SessionsPage: React.FC = () => {
               <div
                 key={weekGroup.weekKey}
                 onClick={() => navigate(`/sessions?month=${monthGroup.monthKey}&week=${weekGroup.weekKey}`)}
-                className="border-4 border-black p-6 bg-linear-to-br from-cyan-200 to-blue-200 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] cursor-pointer hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+                className="neo-surface-cool p-6 cursor-pointer hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -218,19 +218,19 @@ const SessionsPage: React.FC = () => {
                   </div>
                   <div>
                     <div className="font-bold uppercase text-xs">{t('best')}</div>
-                    <div className="font-black text-lg font-mono">
+                    <div className="font-black text-lg font-mono text-green-800">
                       {weekStats.best !== null ? formatTime(weekStats.best) : '-'}
                     </div>
                   </div>
                   <div>
                     <div className="font-bold uppercase text-xs">{t('average')}</div>
-                    <div className="font-black text-lg font-mono">
+                    <div className="font-black text-lg font-mono text-sky-800">
                       {weekStats.average !== null ? formatTime(weekStats.average) : '-'}
                     </div>
                   </div>
                   <div>
                     <div className="font-bold uppercase text-xs">{t('worst')}</div>
-                    <div className="font-black text-lg font-mono">
+                    <div className="font-black text-lg font-mono text-rose-800">
                       {weekStats.worst !== null ? formatTime(weekStats.worst) : '-'}
                     </div>
                   </div>
@@ -268,8 +268,8 @@ const SessionsPage: React.FC = () => {
               <div
                 key={session.id}
                 onClick={() => navigate(`/sessions/${session.id}`)}
-                className={`relative border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] cursor-pointer hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
-                  session.id === currentSessionId ? 'bg-linear-to-br from-yellow-200 to-orange-200' : 'bg-linear-to-br from-white to-cyan-50'
+                className={`relative p-6 cursor-pointer hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
+                  session.id === currentSessionId ? 'neo-surface-warm' : 'neo-surface'
                 }`}
               >
                 {isEditing && (
@@ -291,7 +291,7 @@ const SessionsPage: React.FC = () => {
                             }
                           }}
                           onClick={(e: React.MouseEvent<HTMLInputElement>) => e.stopPropagation()}
-                          className="border-4 border-black px-3 py-3 text-xl font-black uppercase w-full flex-1 bg-white"
+                          className="neo-input w-full flex-1 px-3 py-3 text-xl"
                           autoFocus
                         />
                         <div className="flex gap-2 w-full sm:w-auto">
@@ -301,7 +301,7 @@ const SessionsPage: React.FC = () => {
                               renameSession(session.id, editingName);
                               stopEditing();
                             }}
-                            className="flex-1 sm:flex-none p-3 min-w-11 min-h-11 border-2 border-black bg-green-300 hover:bg-green-400 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]"
+                            className="neo-btn neo-btn-positive neo-icon-btn flex-1 sm:flex-none"
                           >
                             <Check size={20} />
                           </button>
@@ -310,7 +310,7 @@ const SessionsPage: React.FC = () => {
                               e.stopPropagation();
                               stopEditing();
                             }}
-                            className="flex-1 sm:flex-none p-3 min-w-11 min-h-11 border-2 border-black bg-gray-200 hover:bg-gray-300 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]"
+                            className="neo-btn neo-btn-ghost neo-icon-btn flex-1 sm:flex-none"
                           >
                             <X size={20} />
                           </button>
@@ -324,7 +324,7 @@ const SessionsPage: React.FC = () => {
                             e.stopPropagation();
                             startEditing(session.id, session.name);
                           }}
-                          className="p-3 min-w-11 min-h-11 border-2 border-black bg-cyan-300 hover:bg-cyan-400 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]"
+                          className="neo-btn neo-btn-info neo-icon-btn"
                         >
                           <Edit2 size={16} />
                         </button>
@@ -334,7 +334,7 @@ const SessionsPage: React.FC = () => {
                       {date.toLocaleDateString(locale)} {date.toLocaleTimeString(locale)}
                     </div>
                     {session.id === currentSessionId && (
-                      <span className="text-sm font-bold uppercase bg-black text-cyan-200 px-2 py-1 inline-block mt-1">
+                      <span className="neo-badge-active mt-1 inline-block px-2 py-1 text-sm font-bold uppercase">
                         {t('currentSession')}
                       </span>
                     )}
@@ -345,7 +345,7 @@ const SessionsPage: React.FC = () => {
                         e.stopPropagation();
                         handleDeleteSession(session);
                       }}
-                      className="p-3 min-w-11 min-h-11 border-2 border-black bg-red-300 hover:bg-red-400 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]"
+                      className="neo-btn neo-btn-danger neo-icon-btn"
                     >
                       <Trash2 size={20} />
                     </button>
@@ -361,28 +361,28 @@ const SessionsPage: React.FC = () => {
                       </div>
                       <div>
                         <div className="font-bold uppercase">{t('best')}</div>
-                        <div className="font-black text-lg font-mono">{formatTime(sessionStats.best)}</div>
+                        <div className="font-black text-lg font-mono text-green-800">{formatTime(sessionStats.best)}</div>
                       </div>
                       <div>
                         <div className="font-bold uppercase">{t('average')}</div>
-                        <div className="font-black text-lg font-mono">{formatTime(sessionStats.average)}</div>
+                        <div className="font-black text-lg font-mono text-sky-800">{formatTime(sessionStats.average)}</div>
                       </div>
                       <div>
                         <div className="font-bold uppercase">{t('worst')}</div>
-                        <div className="font-black text-lg font-mono">{formatTime(sessionStats.worst)}</div>
+                        <div className="font-black text-lg font-mono text-rose-800">{formatTime(sessionStats.worst)}</div>
                       </div>
                     </div>
 
                     {(ao5 !== null || ao12 !== null) && (
                       <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
                         {ao5 !== null && (
-                          <div className="bg-fuchsia-200 p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
+                          <div className="neo-block bg-pink-100/85 p-2">
                             <div className="font-bold uppercase text-xs">{t('currentAo5')}</div>
                             <div className="font-black text-lg font-mono">{formatTime(ao5)}</div>
                           </div>
                         )}
                         {ao12 !== null && (
-                          <div className="bg-fuchsia-200 p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
+                          <div className="neo-block bg-cyan-100/85 p-2">
                             <div className="font-bold uppercase text-xs">{t('currentAo12')}</div>
                             <div className="font-black text-lg font-mono">{formatTime(ao12)}</div>
                           </div>
@@ -409,7 +409,7 @@ const SessionsPage: React.FC = () => {
       : null;
 
     return (
-      <div className="border-4 border-black bg-white/90 px-3 py-2 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+      <div className="neo-surface px-3 py-2">
         <div className="flex items-center gap-2 flex-wrap text-xs md:text-sm font-bold uppercase">
           <button
             onClick={() => navigate('/sessions')}
