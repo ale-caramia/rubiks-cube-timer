@@ -14,7 +14,7 @@ const DesktopTabs: React.FC = () => {
     <div className="hidden md:block sticky top-0 z-30 neo-entrance">
       <div className="bg-linear-to-b from-white/35 via-cyan-50/25 to-white/45 border-b-4 backdrop-blur-lg border-black pt-4 pb-6 mb-4">
         <div className="mx-4 flex items-center justify-center">
-          <div className="inline-flex items-stretch overflow-hidden rounded-2xl border-4 border-black bg-linear-to-r from-[#fff6de] via-[#fff1f6] to-[#eef8ff] shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+          <div className="inline-flex items-stretch overflow-hidden rounded-2xl border-4 border-black bg-linear-to-r from-[#fff6de] via-[#fff1f6] to-[#eef8ff] shadow-[5px_5px_0px_0px_rgba(17,17,17,1)]">
             <NavLink
               to="/"
               end

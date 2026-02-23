@@ -345,8 +345,8 @@ const TimerPage: React.FC = () => {
                   }}
                   className={`rounded-xl px-3 py-2 border-4 border-black font-bold uppercase text-xs md:text-sm ${
                     selectedCubeMode === mode.id
-                      ? 'bg-black text-cyan-200 shadow-[5px_5px_0px_0px_rgba(17,17,17,1)]'
-                      : `${mode.accentClass} opacity-85 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]`
+                      ? 'bg-black text-cyan-200 shadow-[3px_3px_0px_0px_rgba(17,17,17,1)]'
+                      : `${mode.accentClass} opacity-85 shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]`
                   }`}
                 >
                   {mode.shortLabel}
@@ -367,9 +367,7 @@ const TimerPage: React.FC = () => {
             onMouseUp={handlePressEnd}
             onTouchStart={handlePressStart}
             onTouchEnd={handlePressEnd}
-            className={`rounded-2xl border-8 border-black ${getStateColor()} p-8 md:p-20 mb-6 cursor-pointer select-none shadow-[14px_14px_0px_0px_rgba(17,17,17,1)] transition-all active:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] active:translate-x-1.5 active:translate-y-1.5 neo-entrance ${
-              timerState === 'idle' ? 'ring-4 ring-yellow-300/80' : ''
-            }`}
+            className={`rounded-2xl border-8 border-black ${getStateColor()} p-8 md:p-20 mb-6 cursor-pointer select-none shadow-[4px_4px_0px_0px_rgba(17,17,17,0.68)] transition-all active:shadow-[1px_1px_0px_0px_rgba(17,17,17,0.68)] active:translate-x-1.5 active:translate-y-1.5 neo-entrance`}
           >
             <div className="text-center">
               <div className="text-6xl md:text-8xl font-black mb-4 font-mono">

@@ -53,7 +53,7 @@ const SettingsPage: React.FC = () => {
         </div>
         <p className="text-sm font-bold mb-3">{t('settingsLanguageDescription')}</p>
 
-        <div className="inline-flex overflow-hidden rounded-xl border-4 border-black bg-white shadow-[6px_6px_0px_0px_rgba(17,17,17,1)]">
+        <div className="inline-flex overflow-hidden rounded-xl border-4 border-black bg-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
           <button
             onClick={() => setLanguage('it')}
             className={`px-4 py-2 font-bold uppercase border-r-4 border-black ${

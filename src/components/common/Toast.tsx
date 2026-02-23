@@ -45,7 +45,7 @@ const ToastItem: React.FC<{ toast: ToastMessage; onClose: (id: number) => void }
 
   return (
     <div
-      className={`${bgColor} rounded-xl border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] flex items-center gap-3 animate-slide-in`}
+      className={`${bgColor} rounded-xl border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] flex items-center gap-3 animate-slide-in`}
     >
       <Icon size={20} className="flex-shrink-0" />
       <span className="font-bold flex-1">{toast.message}</span>

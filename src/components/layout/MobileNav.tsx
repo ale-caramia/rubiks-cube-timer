@@ -19,7 +19,7 @@ const MobileNav: React.FC = () => {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] md:hidden">
-      <div className="mx-auto max-w-md overflow-hidden rounded-2xl border-4 border-black bg-linear-to-r from-[#fff6de] via-[#fff1f6] to-[#eef8ff] shadow-[6px_6px_0px_0px_rgba(17,17,17,1)]">
+      <div className="mx-auto max-w-md overflow-hidden rounded-2xl border-4 border-black bg-linear-to-r from-[#fff6de] via-[#fff1f6] to-[#eef8ff] shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
         <div className="grid grid-cols-4 divide-x-4 divide-black">
           {items.map(item => {
             const Icon = item.icon;
@@ -34,7 +34,7 @@ const MobileNav: React.FC = () => {
               >
                 {({ isActive }) => (
                   <>
-                    <span className={`flex h-8 w-8 items-center justify-center rounded-lg border-2 border-black transition-all ${isActive ? `${item.iconActiveBg} text-black shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]` : `${item.iconBg} text-black/85`}`}>
+                    <span className={`flex h-8 w-8 items-center justify-center rounded-lg border-2 border-black transition-all ${isActive ? `${item.iconActiveBg} text-black shadow-[1px_1px_0px_0px_rgba(17,17,17,1)]` : `${item.iconBg} text-black/85`}`}>
                       <Icon size={18} strokeWidth={2.25} />
                     </span>
                     <span className="leading-none">{item.label}</span>

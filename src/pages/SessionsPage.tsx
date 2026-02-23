@@ -123,7 +123,7 @@ const SessionsPage: React.FC = () => {
               <div
                 key={monthGroup.monthKey}
                 onClick={() => navigate(`/sessions?month=${monthGroup.monthKey}`)}
-                className="neo-surface-warm p-6 cursor-pointer hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+                className="neo-surface-warm p-6 cursor-pointer hover:shadow-[3px_3px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -191,7 +191,7 @@ const SessionsPage: React.FC = () => {
               <div
                 key={weekGroup.weekKey}
                 onClick={() => navigate(`/sessions?month=${monthGroup.monthKey}&week=${weekGroup.weekKey}`)}
-                className="neo-surface-cool p-6 cursor-pointer hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+                className="neo-surface-cool p-6 cursor-pointer hover:shadow-[3px_3px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -268,7 +268,7 @@ const SessionsPage: React.FC = () => {
               <div
                 key={session.id}
                 onClick={() => navigate(`/sessions/${session.id}`)}
-                className={`relative p-6 cursor-pointer hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
+                className={`relative p-6 cursor-pointer hover:shadow-[3px_3px_0px_0px_rgba(17,17,17,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
                   session.id === currentSessionId ? 'neo-surface-warm' : 'neo-surface'
                 }`}
               >

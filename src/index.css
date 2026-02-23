@@ -9,9 +9,9 @@
   --neo-bg-b: #7ee7ff;
   --neo-bg-c: #ff8db1;
   --neo-accent: #9bff4f;
-  --neo-shadow: 10px 10px 0 0 var(--neo-ink);
-  --neo-shadow-sm: 6px 6px 0 0 var(--neo-ink);
-  --neo-shadow-xs: 3px 3px 0 0 var(--neo-ink);
+  --neo-shadow-color: rgba(17, 17, 17, 0.72);
+  --neo-shadow-sm: 3px 3px 0 0 var(--neo-shadow-color);
+  --neo-shadow-xs: 1px 1px 0 0 var(--neo-shadow-color);
 }
 
 * {
@@ -84,7 +84,7 @@ a:active {
 
 .neo-panel {
   border: 4px solid var(--neo-ink);
-  box-shadow: var(--neo-shadow);
+  box-shadow: var(--neo-shadow-sm);
   background: var(--neo-paper);
 }
 
@@ -97,28 +97,28 @@ a:active {
   border: 4px solid var(--neo-ink);
   border-radius: 1rem;
   background: linear-gradient(145deg, #fffef8 0%, #fffcf0 55%, #f4fbff 100%);
-  box-shadow: var(--neo-shadow);
+  box-shadow: var(--neo-shadow-sm);
 }
 
 .neo-surface-warm {
   border: 4px solid var(--neo-ink);
   border-radius: 1rem;
   background: linear-gradient(130deg, #fff6de 0%, #fff0e4 52%, #fff9ef 100%);
-  box-shadow: var(--neo-shadow);
+  box-shadow: var(--neo-shadow-sm);
 }
 
 .neo-surface-cool {
   border: 4px solid var(--neo-ink);
   border-radius: 1rem;
   background: linear-gradient(130deg, #eef8ff 0%, #edf7ff 50%, #fff8e8 100%);
-  box-shadow: var(--neo-shadow);
+  box-shadow: var(--neo-shadow-sm);
 }
 
 .neo-surface-punch {
   border: 4px solid var(--neo-ink);
   border-radius: 1rem;
   background: linear-gradient(115deg, #ffe7a6 0%, #ffe1ec 52%, #d7f3ff 100%);
-  box-shadow: var(--neo-shadow);
+  box-shadow: var(--neo-shadow-sm);
 }
 
 .neo-block {
@@ -203,21 +203,21 @@ a:active {
   border: 4px solid var(--neo-ink);
   border-radius: 1rem;
   background: linear-gradient(130deg, #b6ef7d 0%, #d4f7aa 100%);
-  box-shadow: var(--neo-shadow);
+  box-shadow: var(--neo-shadow-sm);
 }
 
 .neo-stat-average {
   border: 4px solid var(--neo-ink);
   border-radius: 1rem;
   background: linear-gradient(130deg, #8ce8ff 0%, #b9f2ff 100%);
-  box-shadow: var(--neo-shadow);
+  box-shadow: var(--neo-shadow-sm);
 }
 
 .neo-stat-worst {
   border: 4px solid var(--neo-ink);
   border-radius: 1rem;
   background: linear-gradient(130deg, #ffb9c3 0%, #ffd2d7 100%);
-  box-shadow: var(--neo-shadow);
+  box-shadow: var(--neo-shadow-sm);
 }
 
 .neo-stat-chip-best {
