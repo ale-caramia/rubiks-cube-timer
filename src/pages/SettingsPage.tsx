@@ -19,6 +19,9 @@ const SettingsPage: React.FC = () => {
   const canEditTimerSettings = firebaseConfigured && !loading && Boolean(user);
   const deleteKeyword = t('deleteAccountConfirmationWord');
   const deleteCheckPassed = deletePhrase.trim().toUpperCase() === deleteKeyword;
+  const userLabel = user ? (user.displayName ?? user.email ?? user.uid) : t('accountNotLoggedIn');
+  const userEmail = user?.email ?? '';
+  const avatarLetter = (user?.displayName ?? user?.email ?? '?').trim().charAt(0).toUpperCase();
 
   const handleDeleteAccount = async (): Promise<void> => {
     if (!deleteCheckPassed || deletingAccount) return;
@@ -46,6 +49,64 @@ const SettingsPage: React.FC = () => {
 
   return (
     <div className="space-y-4 md:space-y-6 neo-entrance">
+      <div className="rounded-[1.35rem] border-4 border-black bg-linear-to-br from-[#fff8e1] via-[#ffeaf4] to-[#e8f7ff] p-4 md:p-5 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+        <div className="flex items-center gap-2 mb-4">
+          <UserRound size={20} />
+          <h2 className="text-xl md:text-2xl font-black uppercase">{t('settingsAccount')}</h2>
+        </div>
+
+        <div className="flex items-center gap-3 px-1">
+          <div className="h-14 w-14 md:h-16 md:w-16 rounded-full border-2 border-black bg-cyan-100 overflow-hidden shrink-0 flex items-center justify-center">
+            {user?.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt={userLabel}
+                className="h-full w-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span className="text-xl md:text-2xl font-black">{avatarLetter}</span>
+            )}
+          </div>
+
+          <div className="min-w-0">
+            <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.08em] opacity-70">
+              {t('settingsAccount')}
+            </p>
+            <p className="text-sm md:text-base font-black truncate">{userLabel}</p>
+            {userEmail && (
+              <p className="text-xs font-bold opacity-70 truncate">{userEmail}</p>
+            )}
+          </div>
+        </div>
+
+        {!firebaseConfigured && (
+          <div className="mt-4 rounded-xl border-2 border-black/70 bg-white/70 px-3 py-2 text-sm font-bold">
+            {t('firebaseNotConfigured')}
+          </div>
+        )}
+
+        {firebaseConfigured && !loading && (
+          user ? (
+            <button
+              onClick={() => void logout()}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border-2 border-black/70 bg-white/72 px-3 py-2 text-sm font-bold uppercase tracking-[0.06em] text-black/70 hover:bg-white hover:text-black"
+            >
+              <LogOut size={16} />
+              {t('logout')}
+            </button>
+          ) : (
+            <button
+              onClick={() => void loginWithGoogle()}
+              className="neo-btn neo-btn-positive mt-4 px-4 py-3 flex items-center gap-2"
+            >
+              <LogIn size={18} />
+              {t('loginGoogle')}
+            </button>
+          )
+        )}
+      </div>
+
       <div className="neo-surface-cool p-4 md:p-5">
         <div className="flex items-center gap-2 mb-2">
           <Languages size={20} />
@@ -232,42 +293,6 @@ const SettingsPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="neo-surface-warm p-4 md:p-5">
-        <div className="flex items-center gap-2 mb-2">
-          <UserRound size={20} />
-          <h2 className="text-xl md:text-2xl font-black uppercase">{t('settingsAccount')}</h2>
-        </div>
-        <p className="text-sm font-bold mb-4">
-          {user ? `${t('accountLoggedInAs')} ${user.displayName ?? user.email ?? user.uid}` : t('accountNotLoggedIn')}
-        </p>
-
-        {!firebaseConfigured && (
-          <div className="neo-surface mb-3 p-3 text-sm font-bold">
-            {t('firebaseNotConfigured')}
-          </div>
-        )}
-
-        {firebaseConfigured && !loading && (
-          user ? (
-            <button
-              onClick={() => void logout()}
-              className="neo-btn neo-btn-danger px-4 py-3 flex items-center gap-2"
-            >
-              <LogOut size={18} />
-              {t('logout')}
-            </button>
-          ) : (
-            <button
-              onClick={() => void loginWithGoogle()}
-              className="neo-btn neo-btn-positive px-4 py-3 flex items-center gap-2"
-            >
-              <LogIn size={18} />
-              {t('loginGoogle')}
-            </button>
-          )
-        )}
       </div>
 
       <div className="neo-surface-warm p-4 md:p-5">

@@ -3,7 +3,6 @@ import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-rou
 import { Award, FolderOpen, Plus, Settings, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useSessions } from '../../state/SessionsContext';
-import { useAuth } from '../../state/AuthContext';
 import MobileNav from './MobileNav';
 import { getCubeModeMeta } from '../../utils/cubeModes';
 import { formatMonthName } from '../../utils/sessionGroups';
@@ -12,7 +11,6 @@ import { useToast } from '../common/Toast';
 const AppLayout: React.FC = () => {
   const { t, language } = useLanguage();
   const { currentSession, sessions, migrationNeeded, migrateLegacyData, migrating, selectedCubeMode, createSession } = useSessions();
-  const { user, loading, firebaseConfigured } = useAuth();
   const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -66,7 +64,6 @@ const AppLayout: React.FC = () => {
     return t('appTitle');
   }, [detailSession, isSettingsPage, isSessionsPage, isStatisticsPage, isTimerPage, language, location.search, sessionDetailMatch, t]);
 
-  const showAuthGate = firebaseConfigured && !loading && !user && !isSettingsPage;
   const handleCreateSession = (): void => {
     createSession();
     showToast(t('sessionCreated'), 'success');
@@ -143,13 +140,7 @@ const AppLayout: React.FC = () => {
         </div>
 
         <div className="px-2 md:px-4 mt-3 md:mt-4">
-          {!firebaseConfigured && (
-            <div className="neo-surface mb-3 p-3 text-sm font-bold neo-wiggle">
-              {t('firebaseNotConfigured')}
-            </div>
-          )}
-
-          {migrationNeeded && user && (
+          {migrationNeeded && (
             <div className="neo-surface-cool mb-3 p-3 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
               <p className="text-sm font-bold">
                 {t('migrationPrompt')}
@@ -164,20 +155,7 @@ const AppLayout: React.FC = () => {
             </div>
           )}
 
-          {showAuthGate ? (
-            <div className="neo-surface-warm p-6 neo-entrance">
-              <h2 className="text-2xl font-black uppercase mb-2">{t('signInToContinue')}</h2>
-              <p className="font-bold mb-4">{t('signInHint')}</p>
-              <button
-                onClick={() => navigate('/settings')}
-                className="neo-btn neo-btn-accent px-4 py-3"
-              >
-                {t('openSettings')}
-              </button>
-            </div>
-          ) : (
-            <Outlet />
-          )}
+          <Outlet />
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, getDocFromServer, onSnapshot, setDoc } from 'firebase/firestore';
 import { useLanguage } from '../i18n/LanguageContext';
 import { db } from '../firebaseClient';
 import type { CubeMode, Session, StorageData, TimeEntry, TimerSettings } from '../types/timer';
@@ -155,7 +155,12 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return;
     }
 
+    let active = true;
+    let checkingServerDoc = false;
+
     const unsub = onSnapshot(userDocRef, async snapshot => {
+      if (!active) return;
+
       if (snapshot.exists()) {
         const normalized = normalizeData(snapshot.data() as StorageData);
         setSessions(normalized.sessions);
@@ -163,9 +168,11 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSelectedCubeMode(normalized.preferredCubeMode ?? DEFAULT_CUBE_MODE);
         setTimerSettings(normalized.timerSettings ?? DEFAULT_TIMER_SETTINGS);
         const legacy = await readLegacyStorage();
+        if (!active) return;
         setMigrationNeeded((normalized.migrationVersion ?? 0) < MIGRATION_VERSION && Boolean(legacy?.sessions?.length));
       } else {
         const legacy = await readLegacyStorage();
+        if (!active) return;
         if (legacy?.sessions?.length) {
           setMigrationNeeded(true);
           setSessions([]);
@@ -173,6 +180,29 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           setSelectedCubeMode(legacy.preferredCubeMode ?? DEFAULT_CUBE_MODE);
           setTimerSettings(legacy.timerSettings ?? DEFAULT_TIMER_SETTINGS);
           return;
+        }
+
+        if (checkingServerDoc) return;
+        checkingServerDoc = true;
+
+        try {
+          // Guard against cache-first snapshots that report "missing" before server data arrives.
+          const serverSnapshot = await getDocFromServer(userDocRef);
+          if (!active) return;
+          if (serverSnapshot.exists()) {
+            const normalized = normalizeData(serverSnapshot.data() as StorageData);
+            setSessions(normalized.sessions);
+            setCurrentSessionId(normalized.currentSessionId);
+            setSelectedCubeMode(normalized.preferredCubeMode ?? DEFAULT_CUBE_MODE);
+            setTimerSettings(normalized.timerSettings ?? DEFAULT_TIMER_SETTINGS);
+            setMigrationNeeded(false);
+            return;
+          }
+        } catch {
+          // If we cannot confirm server state, avoid creating starter data that could overwrite cloud data later.
+          return;
+        } finally {
+          checkingServerDoc = false;
         }
 
         const newSessionId = Date.now();
@@ -196,7 +226,10 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     });
 
-    return unsub;
+    return () => {
+      active = false;
+      unsub();
+    };
   }, [userDocRef, t]);
 
   const createSession = (forcedNumber?: number): void => {
