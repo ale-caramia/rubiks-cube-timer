@@ -13,6 +13,7 @@ import type { TimerState } from '../types/timer';
 
 const INSPECTION_DURATION_MS = 15000;
 const PRE_START_COUNTDOWN_SECONDS = 5;
+const HOLD_TO_READY_MS = 800;
 
 const TimerPage: React.FC = () => {
   const { t } = useLanguage();
@@ -137,12 +138,20 @@ const TimerPage: React.FC = () => {
     requestWakeLock();
   };
 
+  const skipInspection = (): void => {
+    if (timerState !== 'inspection') return;
+    clearRafRef(inspectionRafRef);
+    inspectionStartRef.current = null;
+    setInspectionRemainingMs(0);
+    startCountdown();
+  };
+
   const handlePressStart = (): void => {
     if (timerState === 'idle' || timerState === 'stopped') {
       const timeout = window.setTimeout(() => {
         setTimerState('ready');
         setTime(0);
-      }, 1000);
+      }, HOLD_TO_READY_MS);
       holdTimeoutRef.current = timeout;
     }
   };
@@ -217,25 +226,82 @@ const TimerPage: React.FC = () => {
   };
 
   const currentStats = currentSession ? getStats(currentSession.times.map(t => t.time)) : null;
+  const isFullscreenState = timerState === 'running' || timerState === 'inspection' || timerState === 'countdown';
 
   return (
     <>
-      {timerState === 'running' ? (
+      {isFullscreenState ? (
         <div
           onMouseUp={handlePressEnd}
           onTouchEnd={handlePressEnd}
-          className="fixed inset-0 bg-red-400 border-8 border-black cursor-pointer select-none z-50 flex items-center justify-center"
+          className={`fixed inset-0 border-8 border-black cursor-pointer select-none z-50 flex items-center justify-center ${
+            timerState === 'running'
+              ? 'bg-red-400'
+              : timerState === 'inspection'
+                ? 'bg-orange-300'
+                : 'bg-yellow-300'
+          }`}
         >
           <div className="text-center px-4">
-            <div className="text-8xl md:text-9xl font-black mb-8 font-mono">
-              {formatTime(time)}
-            </div>
-            <div className="text-3xl md:text-5xl font-bold uppercase">
-              {t('solving')}
-            </div>
-            <div className="text-xl md:text-2xl font-bold uppercase mt-8 opacity-70">
-              {t('tapToStop')}
-            </div>
+            {timerState === 'running' && (
+              <>
+                <div className="text-8xl md:text-9xl font-black mb-8 font-mono">
+                  {formatTime(time)}
+                </div>
+                <div className="text-3xl md:text-5xl font-bold uppercase">
+                  {t('solving')}
+                </div>
+                <div className="text-xl md:text-2xl font-bold uppercase mt-8 opacity-70">
+                  {t('tapToStop')}
+                </div>
+              </>
+            )}
+
+            {timerState === 'inspection' && (
+              <>
+                <div className="text-sm md:text-base font-bold uppercase mb-3">
+                  {t('inspection')}
+                </div>
+                <div className="text-8xl md:text-9xl font-black font-mono">
+                  {renderTimerValue()}
+                </div>
+                <div className="text-xs md:text-sm font-bold uppercase mt-1 opacity-70">
+                  {t('inspectionSeconds')}
+                </div>
+                <div className="text-xl md:text-2xl font-bold uppercase mt-8 opacity-70">
+                  {t('tapToCancel')}
+                </div>
+                <div className="mt-8 w-full max-w-xl mx-auto">
+                  <button
+                    onMouseUp={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                    onClick={skipInspection}
+                    className="w-full px-5 py-3 border-4 border-black font-bold uppercase bg-lime-300 hover:bg-lime-400 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+                  >
+                    {t('skipInspection')}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {timerState === 'countdown' && (
+              <>
+                <div
+                  className={`text-8xl md:text-9xl font-black mb-4 font-mono ${getCountdownColor()}`}
+                >
+                  {renderTimerValue()}
+                </div>
+                <div className="text-3xl md:text-5xl font-bold uppercase">
+                  {getStateText()}
+                </div>
+                <div className="text-sm md:text-base font-bold uppercase mt-2 opacity-70">
+                  {t('countdownSeconds')}
+                </div>
+                <div className="text-xl md:text-2xl font-bold uppercase mt-8 opacity-70">
+                  {t('tapToCancel')}
+                </div>
+              </>
+            )}
           </div>
         </div>
       ) : (
@@ -274,40 +340,12 @@ const TimerPage: React.FC = () => {
             className={`border-8 border-black ${getStateColor()} p-8 md:p-20 mb-6 cursor-pointer select-none shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all active:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-1.5 active:translate-y-1.5`}
           >
             <div className="text-center">
-              {timerState === 'inspection' ? (
-                <>
-                  <div className="text-sm md:text-base font-bold uppercase mb-3">
-                    {t('inspection')}
-                  </div>
-                  <div className="text-6xl md:text-8xl font-black font-mono">
-                    {renderTimerValue()}
-                  </div>
-                  <div className="text-xs md:text-sm font-bold uppercase mt-1 opacity-70">
-                    {t('inspectionSeconds')}
-                  </div>
-                  <div className="text-sm md:text-base font-bold uppercase mt-4 opacity-70">
-                    {t('tapToCancel')}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div
-                    className={`text-6xl md:text-8xl font-black mb-4 font-mono ${
-                      timerState === 'countdown' ? getCountdownColor() : ''
-                    }`}
-                  >
-                    {renderTimerValue()}
-                  </div>
-                  <div className="text-xl md:text-2xl font-bold uppercase">
-                    {getStateText()}
-                  </div>
-                  {(timerState === 'countdown') && (
-                    <div className="text-sm md:text-base font-bold uppercase mt-2 opacity-70">
-                      {t('countdownSeconds')}
-                    </div>
-                  )}
-                </>
-              )}
+              <div className="text-6xl md:text-8xl font-black mb-4 font-mono">
+                {renderTimerValue()}
+              </div>
+              <div className="text-xl md:text-2xl font-bold uppercase">
+                {getStateText()}
+              </div>
             </div>
           </div>
 

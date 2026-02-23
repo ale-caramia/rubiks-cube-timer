@@ -19,6 +19,7 @@ export const translations = {
     clickToReset: 'Click per resettare',
     tapToStop: 'Tocca per fermare',
     tapToCancel: 'Tocca per annullare',
+    skipInspection: 'Salta ispezione',
     inspectionSeconds: 'Secondi di ispezione',
     countdownSeconds: 'Secondi al via',
 
@@ -100,6 +101,7 @@ export const translations = {
     clickToReset: 'Click to reset',
     tapToStop: 'Tap to stop',
     tapToCancel: 'Tap to cancel',
+    skipInspection: 'Skip inspection',
     inspectionSeconds: 'Inspection seconds',
     countdownSeconds: 'Seconds to start',
 
