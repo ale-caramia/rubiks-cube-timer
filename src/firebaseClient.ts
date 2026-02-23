@@ -22,12 +22,13 @@ export const firebaseApp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
 
 let firestoreDb;
+const enableAutoLongPolling = import.meta.env.VITE_FIRESTORE_AUTO_LONG_POLLING === 'true';
 
 try {
-  // Persist Firestore cache across reloads so pending/offline writes survive refresh.
+  // Long polling can trigger blocked requests with ad blockers; keep it opt-in.
   firestoreDb = initializeFirestore(firebaseApp, {
     localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
-    experimentalAutoDetectLongPolling: true
+    experimentalAutoDetectLongPolling: enableAutoLongPolling
   });
 } catch {
   firestoreDb = getFirestore(firebaseApp);
