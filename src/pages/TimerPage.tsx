@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Award, TrendingDown, TrendingUp, Trash2 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSessions } from '../state/SessionsContext';
@@ -9,20 +9,20 @@ import { generateScramble } from '../utils/scramble';
 import { CUBE_MODES, getCubeModeMeta } from '../utils/cubeModes';
 import { formatTime } from '../utils/time';
 import { calculateAo5, calculateAo12, calculateBestAo5, calculateBestAo12, getStats } from '../utils/stats';
-import type { TimerState } from '../types/timer';
+import type { CubeMode, TimerState } from '../types/timer';
 
-const INSPECTION_DURATION_MS = 15000;
-const PRE_START_COUNTDOWN_SECONDS = 5;
 const HOLD_TO_READY_MS = 800;
 
 const TimerPage: React.FC = () => {
   const { t } = useLanguage();
-  const { currentSession, addTime, deleteTime, selectedCubeMode, setSelectedCubeMode } = useSessions();
+  const { currentSession, addTime, deleteTime, selectedCubeMode, setSelectedCubeMode, timerSettings } = useSessions();
   const [timerState, setTimerState] = useState<TimerState>('idle');
   const [time, setTime] = useState<number>(0);
   const holdTimeoutRef = useRef<number | null>(null);
-  const [inspectionRemainingMs, setInspectionRemainingMs] = useState<number>(INSPECTION_DURATION_MS);
-  const [countdownSeconds, setCountdownSeconds] = useState<number>(PRE_START_COUNTDOWN_SECONDS);
+  const inspectionDurationMs = timerSettings.inspectionSeconds * 1000;
+  const launchCountdownSeconds = timerSettings.launchCountdownSeconds;
+  const [inspectionRemainingMs, setInspectionRemainingMs] = useState<number>(inspectionDurationMs);
+  const [countdownSeconds, setCountdownSeconds] = useState<number>(launchCountdownSeconds);
   const [scramble, setScramble] = useState<string>('');
   const intervalRef = useRef<number | null>(null);
   const inspectionRafRef = useRef<number | null>(null);
@@ -33,12 +33,22 @@ const TimerPage: React.FC = () => {
     timerState === 'running' || timerState === 'inspection' || timerState === 'countdown'
   );
   const confirmDialog = useConfirmDialog();
+  const buildScramble = useCallback((mode: CubeMode = selectedCubeMode): string => {
+    return generateScramble(mode, timerSettings.scrambleMoveCount);
+  }, [selectedCubeMode, timerSettings.scrambleMoveCount]);
 
   useEffect(() => {
     if (!scramble) {
-      setScramble(generateScramble(selectedCubeMode));
+      setScramble(buildScramble());
     }
-  }, [scramble, selectedCubeMode]);
+  }, [buildScramble, scramble]);
+
+  useEffect(() => {
+    if (timerState === 'idle' || timerState === 'stopped') {
+      setInspectionRemainingMs(inspectionDurationMs);
+      setCountdownSeconds(launchCountdownSeconds);
+    }
+  }, [inspectionDurationMs, launchCountdownSeconds, timerState]);
 
   useEffect(() => {
     return () => {
@@ -73,8 +83,8 @@ const TimerPage: React.FC = () => {
   };
 
   const resetPreSolveTimers = (): void => {
-    setInspectionRemainingMs(INSPECTION_DURATION_MS);
-    setCountdownSeconds(PRE_START_COUNTDOWN_SECONDS);
+    setInspectionRemainingMs(inspectionDurationMs);
+    setCountdownSeconds(launchCountdownSeconds);
   };
 
   const cancelPreSolve = (): void => {
@@ -84,29 +94,39 @@ const TimerPage: React.FC = () => {
     setTimerState('idle');
     setTime(0);
     resetPreSolveTimers();
-    setScramble(generateScramble(selectedCubeMode));
+    setScramble(buildScramble());
     releaseWakeLock();
   };
 
+  const startSolveRun = (): void => {
+    setTimerState('running');
+    setTime(0);
+    startTimeRef.current = Date.now();
+    clearIntervalRef(intervalRef);
+    intervalRef.current = window.setInterval(() => {
+      if (startTimeRef.current !== null) {
+        setTime(Date.now() - startTimeRef.current);
+      }
+    }, 10);
+    requestWakeLock();
+  };
+
   const startCountdown = (): void => {
+    if (!timerSettings.launchCountdownEnabled) {
+      startSolveRun();
+      return;
+    }
+
     setTimerState('countdown');
-    setCountdownSeconds(PRE_START_COUNTDOWN_SECONDS);
+    setCountdownSeconds(launchCountdownSeconds);
     const countdownStart = Date.now();
     countdownIntervalRef.current = window.setInterval(() => {
       const elapsedSeconds = Math.floor((Date.now() - countdownStart) / 1000);
-      const remaining = Math.max(0, PRE_START_COUNTDOWN_SECONDS - elapsedSeconds);
+      const remaining = Math.max(0, launchCountdownSeconds - elapsedSeconds);
       setCountdownSeconds(remaining);
       if (remaining === 0) {
         clearIntervalRef(countdownIntervalRef);
-        setTimerState('running');
-        setTime(0);
-        startTimeRef.current = Date.now();
-        intervalRef.current = window.setInterval(() => {
-          if (startTimeRef.current !== null) {
-            setTime(Date.now() - startTimeRef.current);
-          }
-        }, 10);
-        requestWakeLock();
+        startSolveRun();
       }
     }, 50);
   };
@@ -115,16 +135,21 @@ const TimerPage: React.FC = () => {
     clearIntervalRef(intervalRef);
     clearIntervalRef(countdownIntervalRef);
     clearRafRef(inspectionRafRef);
+    if (!timerSettings.inspectionEnabled) {
+      setTime(0);
+      startCountdown();
+      return;
+    }
     setTimerState('inspection');
     setTime(0);
-    setInspectionRemainingMs(INSPECTION_DURATION_MS);
+    setInspectionRemainingMs(inspectionDurationMs);
     inspectionStartRef.current = Date.now();
     const tick = (): void => {
       if (inspectionStartRef.current === null) {
         return;
       }
       const elapsed = Date.now() - inspectionStartRef.current;
-      const remaining = Math.max(0, INSPECTION_DURATION_MS - elapsed);
+      const remaining = Math.max(0, inspectionDurationMs - elapsed);
       setInspectionRemainingMs(remaining);
       if (remaining === 0) {
         clearRafRef(inspectionRafRef);
@@ -172,7 +197,7 @@ const TimerPage: React.FC = () => {
       clearIntervalRef(intervalRef);
       setTimerState('stopped');
       addTime(time, scramble);
-      setScramble(generateScramble(selectedCubeMode));
+      setScramble(buildScramble());
       releaseWakeLock();
     } else if (timerState === 'stopped') {
       setTimerState('idle');
@@ -204,9 +229,10 @@ const TimerPage: React.FC = () => {
   };
 
   const getCountdownColor = (): string => {
-    if (countdownSeconds >= 4) return 'text-green-700';
-    if (countdownSeconds === 3) return 'text-yellow-700';
-    if (countdownSeconds === 2) return 'text-orange-700';
+    const ratio = countdownSeconds / Math.max(1, launchCountdownSeconds);
+    if (ratio >= 0.66) return 'text-green-700';
+    if (ratio >= 0.4) return 'text-yellow-700';
+    if (ratio >= 0.2) return 'text-orange-700';
     return 'text-red-700';
   };
 
@@ -315,7 +341,7 @@ const TimerPage: React.FC = () => {
                   key={mode.id}
                   onClick={() => {
                     setSelectedCubeMode(mode.id);
-                    setScramble(generateScramble(mode.id));
+                    setScramble(buildScramble(mode.id));
                   }}
                   className={`rounded-xl px-3 py-2 border-4 border-black font-bold uppercase text-xs md:text-sm ${
                     selectedCubeMode === mode.id

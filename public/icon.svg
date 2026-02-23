@@ -40,16 +40,8 @@
   </defs>
 
   <style>
-    :root {
-      --w: #FFFFFF;
-      --g: #009E60;
-      --r: #C41E3A;
-      --bg: #1A1A1A;
-      --tile-stroke: rgba(0,0,0,0.22);
-    }
-
     .tile {
-      stroke: var(--tile-stroke);
+      stroke: rgba(0, 0, 0, 0.22);
       stroke-width: 0.9;
       stroke-linejoin: round;
       paint-order: stroke fill;
@@ -69,33 +61,33 @@
 
     <!-- Struttura interna del cubo -->
     <polygon points="198,58 280,98 280,180 200,218 120,180 120,98"
-             fill="var(--bg)" stroke="#111" stroke-width="2.2" stroke-linejoin="round" />
+             fill="#1A1A1A" stroke="#111" stroke-width="2.2" stroke-linejoin="round" />
 
     <!-- FACCIA SUPERIORE (Risolta: White) -->
-    <use href="#top-tile" x="200" y="60" class="tile" fill="var(--w)" />
-    <use href="#top-tile" x="226" y="73" class="tile" fill="var(--w)" />
-    <use href="#top-tile" x="252" y="86" class="tile" fill="var(--w)" />
+    <use href="#top-tile" x="200" y="60" class="tile" fill="#FFFFFF" />
+    <use href="#top-tile" x="226" y="73" class="tile" fill="#FFFFFF" />
+    <use href="#top-tile" x="252" y="86" class="tile" fill="#FFFFFF" />
 
-    <use href="#top-tile" x="174" y="73" class="tile" fill="var(--w)" />
-    <use href="#top-tile" x="200" y="86" class="tile" fill="var(--w)" />
-    <use href="#top-tile" x="226" y="99" class="tile" fill="var(--w)" />
+    <use href="#top-tile" x="174" y="73" class="tile" fill="#FFFFFF" />
+    <use href="#top-tile" x="200" y="86" class="tile" fill="#FFFFFF" />
+    <use href="#top-tile" x="226" y="99" class="tile" fill="#FFFFFF" />
 
-    <use href="#top-tile" x="148" y="86" class="tile" fill="var(--w)" />
-    <use href="#top-tile" x="174" y="99" class="tile" fill="var(--w)" />
-    <use href="#top-tile" x="200" y="112" class="tile" fill="var(--w)" />
+    <use href="#top-tile" x="148" y="86" class="tile" fill="#FFFFFF" />
+    <use href="#top-tile" x="174" y="99" class="tile" fill="#FFFFFF" />
+    <use href="#top-tile" x="200" y="112" class="tile" fill="#FFFFFF" />
 
     <!-- FACCIA SINISTRA (Risolta: Green) -->
-    <use href="#left-tile" x="122" y="99" class="tile" fill="var(--g)" />
-    <use href="#left-tile" x="148" y="112" class="tile" fill="var(--g)" />
-    <use href="#left-tile" x="174" y="125" class="tile" fill="var(--g)" />
+    <use href="#left-tile" x="122" y="99" class="tile" fill="#009E60" />
+    <use href="#left-tile" x="148" y="112" class="tile" fill="#009E60" />
+    <use href="#left-tile" x="174" y="125" class="tile" fill="#009E60" />
 
-    <use href="#left-tile" x="122" y="125" class="tile" fill="var(--g)" />
-    <use href="#left-tile" x="148" y="138" class="tile" fill="var(--g)" />
-    <use href="#left-tile" x="174" y="151" class="tile" fill="var(--g)" />
+    <use href="#left-tile" x="122" y="125" class="tile" fill="#009E60" />
+    <use href="#left-tile" x="148" y="138" class="tile" fill="#009E60" />
+    <use href="#left-tile" x="174" y="151" class="tile" fill="#009E60" />
 
-    <use href="#left-tile" x="122" y="151" class="tile" fill="var(--g)" />
-    <use href="#left-tile" x="148" y="164" class="tile" fill="var(--g)" />
-    <use href="#left-tile" x="174" y="177" class="tile" fill="var(--g)" />
+    <use href="#left-tile" x="122" y="151" class="tile" fill="#009E60" />
+    <use href="#left-tile" x="148" y="164" class="tile" fill="#009E60" />
+    <use href="#left-tile" x="174" y="177" class="tile" fill="#009E60" />
 
     <!-- FACCIA DESTRA (Risolta: Red) -->
     <use href="#right-tile" x="200" y="138" class="tile" fill="#C41E3A" />

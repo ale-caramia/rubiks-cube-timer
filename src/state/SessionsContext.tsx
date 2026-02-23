@@ -2,8 +2,9 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { useLanguage } from '../i18n/LanguageContext';
 import { db } from '../firebaseClient';
-import type { CubeMode, Session, StorageData, TimeEntry } from '../types/timer';
+import type { CubeMode, Session, StorageData, TimeEntry, TimerSettings } from '../types/timer';
 import { DEFAULT_CUBE_MODE, isCubeMode } from '../utils/cubeModes';
+import { DEFAULT_TIMER_SETTINGS, normalizeTimerSettings } from '../utils/timerSettings';
 import { useAuth } from './AuthContext';
 
 interface SessionsContextValue {
@@ -11,9 +12,11 @@ interface SessionsContextValue {
   currentSessionId: number | null;
   currentSession: Session | null;
   selectedCubeMode: CubeMode;
+  timerSettings: TimerSettings;
   migrationNeeded: boolean;
   migrating: boolean;
   setSelectedCubeMode: (mode: CubeMode) => void;
+  updateTimerSettings: (nextSettings: Partial<TimerSettings>) => void;
   setCurrentSessionId: (id: number | null) => void;
   createSession: (forcedNumber?: number) => void;
   renameSession: (sessionId: number, newName: string) => void;
@@ -27,6 +30,7 @@ interface SessionsContextValue {
 const SessionsContext = createContext<SessionsContextValue | null>(null);
 const STORAGE_KEY = 'rubiks-sessions';
 const MIGRATION_VERSION = 1;
+const HOUR_MS = 60 * 60 * 1000;
 
 const migrateSessionData = (session: (Session | { times: number[] } & Omit<Session, 'times'>)): Session => {
   const cubeMode = isCubeMode((session as Session).cubeMode) ? (session as Session).cubeMode : DEFAULT_CUBE_MODE;
@@ -80,6 +84,7 @@ const normalizeData = (raw: StorageData): StorageData => {
     sessions: uniqueSessions,
     currentSessionId: raw.currentSessionId ?? null,
     preferredCubeMode: isCubeMode(raw.preferredCubeMode) ? raw.preferredCubeMode : DEFAULT_CUBE_MODE,
+    timerSettings: normalizeTimerSettings(raw.timerSettings),
     migrationVersion: raw.migrationVersion ?? 0
   };
 };
@@ -114,6 +119,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [selectedCubeMode, setSelectedCubeMode] = useState<CubeMode>(DEFAULT_CUBE_MODE);
+  const [timerSettings, setTimerSettings] = useState<TimerSettings>(DEFAULT_TIMER_SETTINGS);
   const [migrationNeeded, setMigrationNeeded] = useState(false);
   const [migrating, setMigrating] = useState(false);
 
@@ -122,12 +128,19 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return doc(db, 'users', user.uid, 'timer', 'main');
   }, [user]);
 
-  const persistData = async (nextSessions: Session[], nextCurrentSessionId: number | null, nextMode: CubeMode, migrationVersion = MIGRATION_VERSION): Promise<void> => {
+  const persistData = async (
+    nextSessions: Session[],
+    nextCurrentSessionId: number | null,
+    nextMode: CubeMode,
+    nextTimerSettings: TimerSettings,
+    migrationVersion = MIGRATION_VERSION
+  ): Promise<void> => {
     if (!userDocRef) return;
     await setDoc(userDocRef, {
       sessions: nextSessions,
       currentSessionId: nextCurrentSessionId,
       preferredCubeMode: nextMode,
+      timerSettings: nextTimerSettings,
       migrationVersion
     }, { merge: true });
   };
@@ -137,6 +150,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setSessions([]);
       setCurrentSessionId(null);
       setSelectedCubeMode(DEFAULT_CUBE_MODE);
+      setTimerSettings(DEFAULT_TIMER_SETTINGS);
       setMigrationNeeded(false);
       return;
     }
@@ -147,6 +161,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSessions(normalized.sessions);
         setCurrentSessionId(normalized.currentSessionId);
         setSelectedCubeMode(normalized.preferredCubeMode ?? DEFAULT_CUBE_MODE);
+        setTimerSettings(normalized.timerSettings ?? DEFAULT_TIMER_SETTINGS);
         const legacy = await readLegacyStorage();
         setMigrationNeeded((normalized.migrationVersion ?? 0) < MIGRATION_VERSION && Boolean(legacy?.sessions?.length));
       } else {
@@ -156,6 +171,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           setSessions([]);
           setCurrentSessionId(null);
           setSelectedCubeMode(legacy.preferredCubeMode ?? DEFAULT_CUBE_MODE);
+          setTimerSettings(legacy.timerSettings ?? DEFAULT_TIMER_SETTINGS);
           return;
         }
 
@@ -172,6 +188,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           sessions: [starter],
           currentSessionId: newSessionId,
           preferredCubeMode: DEFAULT_CUBE_MODE,
+          timerSettings: DEFAULT_TIMER_SETTINGS,
           migrationVersion: MIGRATION_VERSION
         };
 
@@ -201,7 +218,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const nextSessions = [...sessions, newSession];
     setSessions(nextSessions);
     setCurrentSessionId(newId);
-    void persistData(nextSessions, newId, selectedCubeMode);
+    void persistData(nextSessions, newId, selectedCubeMode, timerSettings);
   };
 
   const renameSession = (sessionId: number, newName: string): void => {
@@ -211,7 +228,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         : session
     );
     setSessions(nextSessions);
-    void persistData(nextSessions, currentSessionId, selectedCubeMode);
+    void persistData(nextSessions, currentSessionId, selectedCubeMode, timerSettings);
   };
 
   const deleteSession = (sessionId: number): void => {
@@ -237,7 +254,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setSessions(remaining);
     setCurrentSessionId(nextId);
-    void persistData(remaining, nextId, selectedCubeMode);
+    void persistData(remaining, nextId, selectedCubeMode, timerSettings);
   };
 
   const deleteTime = (sessionId: number, timeIndex: number): void => {
@@ -249,13 +266,26 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       };
     });
     setSessions(nextSessions);
-    void persistData(nextSessions, currentSessionId, selectedCubeMode);
+    void persistData(nextSessions, currentSessionId, selectedCubeMode, timerSettings);
   };
 
   const addTime = (timeMs: number, scramble: string): void => {
+    const now = Date.now();
     const activeSession = sessions.find(session => session.id === currentSessionId);
+    const latestSolveTimestamp = sessions
+      .filter(session => session.cubeMode === selectedCubeMode)
+      .flatMap(session => session.times)
+      .reduce<number | null>((latest, entry) => {
+      if (latest === null || entry.timestamp > latest) {
+        return entry.timestamp;
+      }
+      return latest;
+    }, null);
+    const shouldStartNewSessionForInactivity = latestSolveTimestamp !== null
+      && now - latestSolveTimestamp >= timerSettings.autoSessionAfterHours * HOUR_MS
+      && !(activeSession && activeSession.cubeMode === selectedCubeMode && activeSession.times.length === 0);
 
-    if (!activeSession || activeSession.cubeMode !== selectedCubeMode) {
+    if (!activeSession || activeSession.cubeMode !== selectedCubeMode || shouldStartNewSessionForInactivity) {
       let newId = Date.now();
       const existingIds = new Set(sessions.map(s => s.id));
       while (existingIds.has(newId)) newId += 1;
@@ -267,7 +297,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         cubeMode: selectedCubeMode,
         times: [{
           time: timeMs,
-          timestamp: Date.now(),
+          timestamp: now,
           scramble
         }]
       };
@@ -275,7 +305,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const nextSessions = [...sessions, newSession];
       setSessions(nextSessions);
       setCurrentSessionId(newId);
-      void persistData(nextSessions, newId, selectedCubeMode);
+      void persistData(nextSessions, newId, selectedCubeMode, timerSettings);
       return;
     }
 
@@ -285,14 +315,14 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         ...session,
         times: [...session.times, {
           time: timeMs,
-          timestamp: Date.now(),
+          timestamp: now,
           scramble
         }]
       };
     });
 
     setSessions(nextSessions);
-    void persistData(nextSessions, currentSessionId, selectedCubeMode);
+    void persistData(nextSessions, currentSessionId, selectedCubeMode, timerSettings);
   };
 
   const moveTime = (fromSessionId: number, timeIndex: number, toSessionId: number): void => {
@@ -322,12 +352,18 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
 
     setSessions(nextSessions);
-    void persistData(nextSessions, currentSessionId, selectedCubeMode);
+    void persistData(nextSessions, currentSessionId, selectedCubeMode, timerSettings);
   };
 
   const updatePreferredMode = (mode: CubeMode): void => {
     setSelectedCubeMode(mode);
-    void persistData(sessions, currentSessionId, mode);
+    void persistData(sessions, currentSessionId, mode, timerSettings);
+  };
+
+  const updateTimerSettings = (nextSettings: Partial<TimerSettings>): void => {
+    const merged = normalizeTimerSettings({ ...timerSettings, ...nextSettings });
+    setTimerSettings(merged);
+    void persistData(sessions, currentSessionId, selectedCubeMode, merged);
   };
 
   const migrateLegacyData = async (): Promise<void> => {
@@ -346,6 +382,7 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         sessions: normalized.sessions,
         currentSessionId: normalized.currentSessionId ?? getMostRecentSessionId(normalized.sessions),
         preferredCubeMode: normalized.preferredCubeMode ?? DEFAULT_CUBE_MODE,
+        timerSettings: normalized.timerSettings ?? DEFAULT_TIMER_SETTINGS,
         migrationVersion: MIGRATION_VERSION
       };
 
@@ -363,9 +400,11 @@ export const SessionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     currentSessionId,
     currentSession,
     selectedCubeMode,
+    timerSettings,
     migrationNeeded,
     migrating,
     setSelectedCubeMode: updatePreferredMode,
+    updateTimerSettings,
     setCurrentSessionId,
     createSession,
     renameSession,

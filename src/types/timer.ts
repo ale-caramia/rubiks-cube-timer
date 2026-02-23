@@ -31,9 +31,19 @@ export interface Stats {
   count: number;
 }
 
+export interface TimerSettings {
+  inspectionEnabled: boolean;
+  inspectionSeconds: number;
+  launchCountdownEnabled: boolean;
+  launchCountdownSeconds: number;
+  scrambleMoveCount: number;
+  autoSessionAfterHours: number;
+}
+
 export interface StorageData {
   sessions: Session[];
   currentSessionId: number | null;
   preferredCubeMode?: CubeMode;
+  timerSettings?: TimerSettings;
   migrationVersion?: number;
 }

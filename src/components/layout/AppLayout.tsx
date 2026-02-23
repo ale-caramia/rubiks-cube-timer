@@ -87,7 +87,7 @@ const AppLayout: React.FC = () => {
                   <img
                     src="/icon.svg"
                     alt={t('rubikLogoAlt')}
-                    className="w-12 h-12 md:w-14 md:h-14 shrink-0 block -translate-y-[1px]"
+                    className="w-12 h-12 md:w-14 md:h-14 shrink-0 block -translate-y-px"
                   />
                   <div className="min-w-0 flex flex-col">
                     <h1 className="text-base md:text-xl font-black uppercase truncate leading-none text-left">

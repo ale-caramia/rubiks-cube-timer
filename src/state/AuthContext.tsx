@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { GoogleAuthProvider, User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
-import { auth, isFirebaseConfigured } from '../firebaseClient';
+import { GoogleAuthProvider, User, deleteUser, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { deleteDoc, doc } from 'firebase/firestore';
+import { auth, db, isFirebaseConfigured } from '../firebaseClient';
 
 interface AuthContextValue {
   user: User | null;
@@ -8,6 +9,7 @@ interface AuthContextValue {
   firebaseConfigured: boolean;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -39,12 +41,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await signOut(auth);
   };
 
+  const deleteAccount = async (): Promise<void> => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
+    const timerDocRef = doc(db, 'users', currentUser.uid, 'timer', 'main');
+    const userDocRef = doc(db, 'users', currentUser.uid);
+
+    await Promise.allSettled([
+      deleteDoc(timerDocRef),
+      deleteDoc(userDocRef)
+    ]);
+    await deleteUser(currentUser);
+  };
+
   const value = useMemo(() => ({
     user,
     loading,
     firebaseConfigured: isFirebaseConfigured,
     loginWithGoogle,
-    logout
+    logout,
+    deleteAccount
   }), [user, loading]);
 
   return (
