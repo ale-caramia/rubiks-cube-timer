@@ -30,7 +30,7 @@ const AppLayout: React.FC = () => {
   const navItems = useMemo(() => ([
     { path: '/', label: t('timer'), icon: Award },
     { path: '/sessions', label: t('sessions'), icon: FolderOpen },
-    { path: '/statistics', label: t('statistics'), icon: TrendingUp },
+    { path: '/statistics', label: t('stats'), icon: TrendingUp },
     { path: '/settings', label: t('settings'), icon: Settings }
   ]), [t]);
 
@@ -105,7 +105,7 @@ const AppLayout: React.FC = () => {
                   {isSessionsRootPage && (
                     <button
                       onClick={handleCreateSession}
-                      className="neo-chip h-9 w-9 bg-cyan-200 flex items-center justify-center"
+                      className="h-10 w-10 rounded-xl border-2 border-black bg-cyan-200 text-black shadow-[1px_1px_0px_0px_rgba(17,17,17,0.72)] flex items-center justify-center hover:bg-cyan-100"
                       aria-label={t('newSession')}
                       title={t('newSession')}
                     >
@@ -120,13 +120,16 @@ const AppLayout: React.FC = () => {
                         <button
                           key={item.path}
                           onClick={() => navigate(item.path)}
-                          className={`h-9 w-9 flex items-center justify-center ${
-                            active ? 'neo-badge-active' : 'neo-chip bg-white/85'
+                          className={`h-10 px-3 rounded-xl border-2 border-black flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.08em] leading-none transition-all ${
+                            active
+                              ? 'bg-black text-cyan-200 shadow-[1px_1px_0px_0px_rgba(17,17,17,0.72)]'
+                              : 'bg-white/90 text-black hover:bg-yellow-100'
                           }`}
                           aria-label={item.label}
                           title={item.label}
                         >
-                          <Icon size={16} />
+                          <Icon size={14} />
+                          <span className="pt-px">{item.label}</span>
                         </button>
                       );
                     })}
