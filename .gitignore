@@ -28,4 +28,4 @@ firebase.ts
 .firebase/
 .firebaserc
 firebase.json
-dev-dist/
+.env

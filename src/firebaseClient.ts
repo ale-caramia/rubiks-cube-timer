@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,4 +20,17 @@ export const isFirebaseConfigured = Boolean(
 
 export const firebaseApp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
-export const db = getFirestore(firebaseApp);
+
+let firestoreDb;
+
+try {
+  // Persist Firestore cache across reloads so pending/offline writes survive refresh.
+  firestoreDb = initializeFirestore(firebaseApp, {
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+    experimentalAutoDetectLongPolling: true
+  });
+} catch {
+  firestoreDb = getFirestore(firebaseApp);
+}
+
+export const db = firestoreDb;
